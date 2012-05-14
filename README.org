@@ -1,0 +1,3 @@
+genapp is a light weight framework for deploying and managing applications
+under runit tools.
+
