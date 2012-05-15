@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+set -u
+
+export app_dir={{app_dir}}
+export control_dir={{control_dir}}
+export app_user={{app_user}}
+export app_start={{app_start}}
+
+cd "$app_dir"
+exec chpst -u "$app_user" "$app_start" 2>&1

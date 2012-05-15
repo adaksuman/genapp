@@ -1,0 +1,9 @@
+%%% -*-erlang-*-
+{application, genapp,
+  [{description, "Framework for deploying and managing generic apps"},
+   {vsn, "0.1.0"},
+   {modules, []},
+   {registered, []},
+   {applications, [kernel, stdlib, sasl, e2, jiffy]},
+   {mod, {e2_application, [genapp_app]}},
+   {start_phases, []}]}.
