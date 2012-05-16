@@ -218,7 +218,7 @@ environment variables it can use to perform setup.
 
 **`app_id`** the application ID (randomly assigned eight character string)
 
-**`app_dir`** the application directory (located in `apps_home`)
+**`app_dir`** the application directory (located in apps_home)
 
 **`app_user`** the user associated with the application
 
@@ -239,9 +239,12 @@ the project metadata are provided. Variables are named using this convention:
 For example, the "message" variable for the "hello" plugin can be accessed by a
 plugin using "$plugin_hello_message".
 
-Plugin metadata is specified as an JSON associative array named using "plugin."
-+ PLUGIN_NAME. For example, the "message" value above could be defined in
-metadata.json as follows:
+Plugin metadata is specified as an JSON associative array named using
+
+> "plugin." + PLUGIN_NAME
+
+For example, the "message" value above could be defined in metadata.json as
+follows:
 
     {
         "plugin.hello": {"message": "Hello World!"}
@@ -339,7 +342,7 @@ In the plugin file, create a `setup` function like this:
     setup() {
         echo 'while true; do echo "TODO: run my app"; sleep 1; done' > \
 	    "$control_dir/start"
-	chmod 550 "$control_dir/start"
+        chmod 550 "$control_dir/start"
     }
 
 ### Test Application
@@ -356,7 +359,7 @@ symlink in `plugin_conf_home`).
 
 Deploy the test application in the genapp shell:
 
-    genapp:deploy("/path/to/my_app")
+    genapp:deploy("/path/to/my_app").
 
 Replace `/path/to/my_app` with the fill path to your test app directory
 (i.e. the directory containing `metadata.json`).
@@ -395,7 +398,7 @@ that may improve your code. Here's an example:
 
     setup() {
         install_files
-	create_control_files
+        create_control_files
     }
 
 ### Freely use plugin supporting files
@@ -443,7 +446,7 @@ Errors will occur in three places:
 - While running an application
 
 genapp will print errors in the shell during the `deploy` command. You can also
-look in `.genapp/setup_status` directory for details on a failed installation.
+look in `.genapp/setup_status/` for details on a failed installation.
 
 You'll see errors directly in the system console when calling
 `.genapp/control/start`.
@@ -456,10 +459,10 @@ that will help you identify the problem.
 
 ### Miscellaneous
 
-- Always run applications in the foreground (i.e. not as daemons / background
+- Always run applications in the foreground (i.e. not as daemons/background
   processes)
 
-- Alays use [`exec`][] to run the application process from the `start` script
+- Alays use [exec][] to run the application process from the `start` script
 
 - Remember to make files and directories group writable whenever the
   application needs to modify them
