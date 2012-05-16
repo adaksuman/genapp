@@ -3,6 +3,9 @@ rebar = ./rebar
 compile: deps
 	$(rebar) compile
 
+quick:
+	$(rebar) compile skip_deps=true
+
 deps:
 	$(rebar) get-deps
 
