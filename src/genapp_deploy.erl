@@ -200,9 +200,14 @@ handle_reserved_ports({error, Err}, App) ->
 %%%===================================================================
 
 pre_setup(#app{dir=Dir, user=User}=App) ->
-    set_owner(Dir, User, User),
+    pre_setup_set_owner(genapp:mode(), Dir, User, User),
     change_mode(Dir, 8#00750),
     App.
+
+pre_setup_set_owner(normal, Dir, User, Group) ->
+    set_owner(Dir, User, Group);
+pre_setup_set_owner(devmode, _Dir, _User, _Group) ->
+    ok.
 
 set_owner(Dir, User, Group) ->
     {0, ""} = genapp_cmd:run("chown", ["-R", User ++ ":" ++ Group, Dir]).
