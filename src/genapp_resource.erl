@@ -306,7 +306,7 @@ app_metadata_file(AppDir) ->
     filename:join([AppDir, ".genapp", "metadata"]).
 
 handle_read_app_metadata({ok, Bin}) -> Bin;
-handle_read_app_metadata({error, Err}) -> {error, Err}. 
+handle_read_app_metadata({error, Err}) -> {error, Err}.
 
 %%%===================================================================
 %%% App setup status and logs
@@ -370,7 +370,8 @@ delete_app(Id, State) ->
 
 handle_delete_valid_app({ok, Dir}) ->
     validate_app_dir(Dir),
-    handle_rm_dir(genapp_cmd:run("rm", ["-rf", Dir], [], ?RM_APP_DIR_TIMEOUT)).
+    handle_rm_dir(genapp_cmd:run("rm", ["-rf", Dir], [], ?RM_APP_DIR_TIMEOUT));
+handle_delete_valid_app(error) -> error.
 
 validate_app_dir(Dir) ->
     validate_app_dir_parts(filename:split(Dir)).
