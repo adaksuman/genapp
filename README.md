@@ -234,14 +234,14 @@ the start script)
 In addition to these environment variables, plugin specific values defined in
 the project metadata are provided. Variables are named using this convention:
 
-> "plugin_" + PLUGIN_NAME + "_" + VALUE_NAME
+    "plugin_" + PLUGIN_NAME + "_" + VALUE_NAME
 
 For example, the "message" variable for the "hello" plugin can be accessed by a
 plugin using "$plugin_hello_message".
 
 Plugin metadata is specified as an JSON associative array named using
 
-> "plugin." + PLUGIN_NAME
+    "plugin." + PLUGIN_NAME
 
 For example, the "message" value above could be defined in metadata.json as
 follows:
