@@ -28,6 +28,7 @@
 -define(DEFAULT_PORT_MAX, 8999).
 -define(CREATE_APP_DIR_ATTEMPTS, 3).
 -define(RM_APP_DIR_TIMEOUT, 30000).
+-define(TAIL_TIMEOUT, 30000).
 
 -define(is_valid_range(Min, Max),
         (is_integer(Min) andalso
@@ -266,6 +267,8 @@ query_app_acc(Dir, [setup_status|Rest], Acc) ->
     query_app_acc(Dir, Rest, [{setup_status, app_setup_status(Dir)}|Acc]);
 query_app_acc(Dir, [setup_logs|Rest], Acc) ->
     query_app_acc(Dir, Rest, [{setup_logs, app_setup_logs(Dir)}|Acc]);
+query_app_acc(Dir, [{log_tail, Bytes}|Rest], Acc) ->
+    query_app_acc(Dir, Rest, [{log_tail, log_tail(Dir, Bytes)}|Acc]);
 query_app_acc(Dir, [_Other|Rest], Acc) ->
     query_app_acc(Dir, Rest, Acc).
 
@@ -383,6 +386,27 @@ validate_app_dir_parts(_Parts) -> ok.
 handle_rm_dir({0, _}) -> ok;
 handle_rm_dir({error, Err}) -> {error, Err};
 handle_rm_dir({N, Err}) -> {error, {N, Err}}.
+
+%%%===================================================================
+%%% Log tail
+%%%===================================================================
+
+log_tail(AppDir, Bytes) ->
+    tail(current_log(AppDir), Bytes).
+
+current_log(AppDir) ->
+    filename:join([AppDir, ".genapp", "log", "current"]).
+
+tail(File, Bytes) when is_integer(Bytes), Bytes >= 0 ->
+    handle_tail_result(
+      genapp_cmd:run(
+        "tail", ["-c", integer_to_list(Bytes), File], [], ?TAIL_TIMEOUT));
+tail(_File, Bytes) ->
+    {error, {invalid_log_size, Bytes}}.
+
+handle_tail_result({0, Out}) -> {ok, Out};
+handle_tail_result({1, _}) -> {ok, ""};
+handle_tail_result({N, Err}) -> {error, {N, Err}}.
 
 %%%===================================================================
 %%% Misc
