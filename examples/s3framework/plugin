@@ -11,8 +11,19 @@ setup() {
     . $app_dir/install
     rm $app_dir/install
 
-    cat $app_dir/start > "$control_dir/start"
-    rm $app_dir/start
+    echo "" >> $app_dir/start
+
+    start_script=$(while read; do
+	            eval echo "$REPLY"
+		   done < $app_dir/start)
+
+    
+    cat > "$control_dir/start" <<EOF
+#!/bin/sh
+$start_script
+EOF
+
+
 
     # start must be executable
     chmod 550 "$control_dir/start"
