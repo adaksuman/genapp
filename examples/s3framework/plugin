@@ -1,0 +1,19 @@
+# -*-shell-script-*-
+setup() {
+    # Install everything from meta home (location of metadata file)
+    cp -a $meta_home/* $app_dir/
+
+    curl $plugin_s3zip_framework > $app_dir/.framework.zip
+    unzip $app_dir/.framework.zip -d $app_dir    
+    rm $app_dir/.framework.zip
+
+    chmod 550 "$app_dir/install"
+    . $app_dir/install
+    rm $app_dir/install
+
+    cat $app_dir/start > "$control_dir/start"
+    rm $app_dir/start
+
+    # start must be executable
+    chmod 550 "$control_dir/start"
+}

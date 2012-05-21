@@ -1,0 +1,12 @@
+# -*-shell-script-*-
+setup() {
+    # Install everything from meta home (location of metadata file)
+    cp -a $meta_home/* $app_dir/
+
+    start_cmd=$(sed s/^web\:/''/g $app_dir/Procfile)
+    echo "export PORT=$app_port" > "$control_dir/start" 
+    echo "exec $start_cmd" >> "$control_dir/start" 
+
+    # start must be executable
+    chmod 550 "$control_dir/start"
+}
