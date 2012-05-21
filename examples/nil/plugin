@@ -1,0 +1,26 @@
+# -*-shell-script-*-
+setup() {
+    # Install everything from meta home (location of metadata file)
+    cp -a $meta_home/* $app_dir/
+
+    if [ -e $app_dir/setup ]; then
+	chmod 550 "$app_dir/setup"
+	. $app_dir/setup
+    fi
+
+
+
+    start_script=$(while read; do
+	            eval echo "$REPLY"
+	           done < $app_dir/start)
+
+    
+    cat > "$control_dir/start" <<EOF
+#!/bin/sh
+$start_script
+EOF
+
+
+    # start must be executable
+    chmod 550 "$control_dir/start"
+}
