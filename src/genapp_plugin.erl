@@ -25,12 +25,12 @@ setup_app(Plugin, App) ->
     setup_app(genapp:mode(), Plugin, App).
 
 setup_app(normal, Plugin, #app{dir=Dir, user=User}=App) ->
-    genapp_cmd:run(
-      "chpst", ["-u", User, setup_app_script(App)],
+    genapp_extension:run_as(
+      User, setup_app_script(app),
       [{cd, Dir}, {env, app_setup_env(Plugin, App)}],
       ?APP_SETUP_TIMEOUT);
 setup_app(devmode, Plugin, #app{dir=Dir}=App) ->
-    genapp_cmd:run(
+    genapp_extension:run(
       setup_app_script(App), [],
       [{cd, Dir}, {env, app_setup_env(Plugin, App)}],
       ?APP_SETUP_TIMEOUT).
