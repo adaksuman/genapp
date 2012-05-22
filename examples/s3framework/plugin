@@ -13,6 +13,11 @@ setup() {
 
     echo "" >> $app_dir/start
 
+    # this is to read in and expand all vars in the external file
+    # another approach is to write this to a file with echo " " wrapped around it,
+    # then source it and read 
+    # the result: RES=$(source temp-file-with-echo-wrapped-around-start-file-contents)
+
     start_script=$(while read; do
 	            eval echo "$REPLY"
 		   done < $app_dir/start)
