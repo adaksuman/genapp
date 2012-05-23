@@ -1,5 +1,0 @@
-#!/bin/sh
-APP_USER={{app_user}}
-APP_DIR={{app_dir}}
-cd "$APP_DIR"
-exec chpst -u "$APP_USER" /sbin/svlogd .genapp/log

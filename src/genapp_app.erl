@@ -11,9 +11,12 @@ children(normal) ->
     [genapp_event,
      genapp_resource,
      {genapp_tasks, [supervisor]},
-     genapp_user_cleanup,
-     genapp_service_cleanup];
+     genapp_extension,
+     genapp_extension_defaults,
+     genapp_user_cleanup];
 children(devmode) ->
     [genapp_event,
      genapp_resource,
-     {genapp_tasks, [supervisor]}].
+     {genapp_tasks, [supervisor]},
+     genapp_extension,
+     genapp_extension_defaults].

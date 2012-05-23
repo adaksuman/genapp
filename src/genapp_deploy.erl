@@ -310,10 +310,5 @@ plugin_setup_result_name(Plugin, Exit) ->
 %%%===================================================================
 
 create_service(App) ->
-    create_service(genapp:mode(), App).
-
-create_service(normal, App) ->
-    Service = genapp_service:create(App),
-    App#app{service=Service};
-create_service(devmode, App) -> App.
-
+    Service = genapp_extension:create_service(App),
+    App#app{service=Service}.
