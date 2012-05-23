@@ -29,13 +29,16 @@ init([Home, Options]) ->
 
 new_app(Home, Options) ->
     Meta = genapp_metadata:parse_file(metadata_file(Home, Options)),
-    #app{meta=Meta, meta_home=Home}.
+    #app{id=app_id(Options), meta=Meta, meta_home=Home}.
 
 metadata_file(Home, Options) ->
     filename:join(Home, metadata_file_option(Options)).
 
 metadata_file_option(Options) ->
     proplists:get_value(metadata_file, Options, ?DEFAULT_METADATA_FILE).
+
+app_id(Options) ->
+    proplists:get_value(id, Options).
 
 %%%===================================================================
 %%% Deploy task
@@ -125,9 +128,14 @@ handle_plugin_installed(false, Plugin) ->
 %%%===================================================================
 
 create_app_directory(App) ->
-    {AppId, AppDir} = genapp_resource:create_new_app_dir(),
+    {AppId, AppDir} = create_new_app_dir(App),
     apply_stages(App#app{id=AppId, dir=AppDir},
                  [app_dir_skel, app_metadata, setup_script]).
+
+create_new_app_dir(#app{id=undefined}) ->
+    genapp_resource:create_new_app_dir();
+create_new_app_dir(#app{id=Id}) ->
+    genapp_resource:create_new_app_dir(Id).
 
 create_app_dir_skel(App) ->
     set_initial_app_dir_permissions(App),

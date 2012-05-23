@@ -13,6 +13,7 @@
 
 -export([start_link/0,
          create_new_app_dir/0,
+         create_new_app_dir/1,
          app_dirs/0,
          reserve_app_ports/2,
 	 query_app/2,
@@ -46,6 +47,9 @@ start_link() ->
 
 create_new_app_dir() ->
     e2_service:call(?MODULE, new_app_dir).
+
+create_new_app_dir(AppId) ->
+    e2_service:call(?MODULE, {new_app_dir, AppId}).
 
 reserve_app_ports(#app{id=Id}, Count) ->
     e2_service:call(?MODULE, {reserve_ports, Id, Count});
@@ -108,6 +112,8 @@ handle_required_dir(false, Dir) -> exit({missing_required_dir, Dir}).
 
 handle_msg(new_app_dir, _From, State) ->
     {reply, new_app_dir(State), State};
+handle_msg({new_app_dir, AppId}, _From, State) ->
+    {reply, new_app_dir(AppId, State), State};
 handle_msg({reserve_ports, AppId, Count}, _From, State) ->
     {reply, reserve_ports(AppId, Count, State), State};
 handle_msg(app_dirs, _From, State) ->
@@ -125,11 +131,19 @@ handle_msg({app_exists, Id}, _From, State) ->
 %%% New app dir
 %%%===================================================================
 
-new_app_dir(#state{home=Home}) ->
-    new_app_dir(Home, ?CREATE_APP_DIR_ATTEMPTS).
+new_app_dir(Id, #state{home=Home}) ->
+    AppDir = filename:join(Home, Id),
+    handle_app_dir_create(file:make_dir(AppDir), {Id, AppDir}).
 
-new_app_dir(_Home, 0) -> exit(too_many_create_app_dir_attempts);
-new_app_dir(Home, Attempts) ->
+handle_app_dir_create(ok, {Id, AppDir}) -> {Id, AppDir};
+handle_app_dir_create({error, Err}, {_, AppDir}) ->
+    error({create_app_dir, AppDir, Err}).
+
+new_app_dir(#state{home=Home}) ->
+    try_new_app_dir(Home, ?CREATE_APP_DIR_ATTEMPTS).
+
+try_new_app_dir(_Home, 0) -> exit(too_many_create_app_dir_attempts);
+try_new_app_dir(Home, Attempts) ->
     Id = new_app_id(),
     AppDir = filename:join(Home, Id),
     handle_app_dir_attempt(
@@ -142,7 +156,7 @@ new_app_id() ->
 handle_app_dir_attempt(ok, {Id, AppDir}, _Home, _Attempts) ->
     {Id, AppDir};
 handle_app_dir_attempt({error, eexists}, _, Home, Attempts) ->
-    new_app_dir(Home, Attempts - 1).
+    try_new_app_dir(Home, Attempts - 1).
 
 %%%===================================================================
 %%% Reserve ports
