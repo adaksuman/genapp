@@ -1,0 +1,4 @@
+Basic procfile support - really really easy. 
+
+the ./app dir is an example app (would have Procfile at root, along with metadata.json)
+

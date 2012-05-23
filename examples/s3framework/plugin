@@ -1,0 +1,35 @@
+# -*-shell-script-*-
+setup() {
+    # Install everything from meta home (location of metadata file)
+    cp -a $meta_home/* $app_dir/
+
+    curl $plugin_s3zip_framework > $app_dir/.framework.zip
+    unzip $app_dir/.framework.zip -d $app_dir    
+    rm $app_dir/.framework.zip
+
+    chmod 550 "$app_dir/install"
+    . $app_dir/install
+    rm $app_dir/install
+
+    echo "" >> $app_dir/start
+
+    # this is to read in and expand all vars in the external file
+    # another approach is to write this to a file with echo " " wrapped around it,
+    # then source it and read 
+    # the result: RES=$(source temp-file-with-echo-wrapped-around-start-file-contents)
+
+    start_script=$(while read; do
+	            eval echo "$REPLY"
+		   done < $app_dir/start)
+
+    
+    cat > "$control_dir/start" <<EOF
+#!/bin/sh
+$start_script
+EOF
+
+
+
+    # start must be executable
+    chmod 550 "$control_dir/start"
+}
