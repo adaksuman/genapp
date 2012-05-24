@@ -13,13 +13,6 @@
    %% specify it here.
    {apps_home, "/var/genapp/apps"},
 
-   %% services_home is where genapp services are created. It should be writable
-   %% by the genapp process owner. It defaults to /var/genapp/services for
-   %% production. For development, create a directory that you can write to
-   %% and secify it here. Note that services aren't created when devmode is
-   %% true.
-   {services_home, "/var/genapp/services"},
-
    %% plugins_conf_home is where genapp looks for installed plugins. A plugin
    %% is a file in this directory that can be sourced to define a setup
    %% function. Defaults to /etc/genapp/plugins.d.
