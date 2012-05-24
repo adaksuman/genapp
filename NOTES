@@ -80,3 +80,23 @@ Function:
 
     run_as(User, Cmd, Args, Options, Timeout) -> Result
     run_as({User, Group}, Cmd, Args, Options, Timeout) -> Result
+* Stats
+
+Stats for an app can be collected using a convention:
+
+Call "control scripts" named stats-* in sorted order.
+
+E.g.
+
+: .|
+: ..|.genapp/
+: ..|.genapp/control/stat-pidstat
+: ..|.genapp/control/stat-appstat
+
+The plugin will obviously install plugin-specific stat collectors.
+
+What about core stats?
+
+I think this needs to be extension specific.
+
+Extensions know how things are run and so can install the appropriate stat.
