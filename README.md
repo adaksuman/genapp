@@ -2,26 +2,19 @@
 
 genapp is a light weight framework for deploying and managing applications.
 
-?? genapp uses runit to supervise applications.
-
 # Production Requirements
 
-?? The following [runit][] tools must be installed and available on the path:
+In production, genapp must be run as root.
 
-- chpst
-- runsvdir
-
-Other requirements:
+Required software:
 
 - [Erlang][]
-
-In production, genapp must be run as root.
 
 # Development Requirements
 
 genapp may be run in development mode as a non-privileged user.
 
-Requirements:
+Required software:
 
 - [Erlang][]
 
