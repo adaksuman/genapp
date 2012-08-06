@@ -1,3 +1,0 @@
-#!/bin/sh
-echo "starting python !"
-exec python2 -m SimpleHTTPServer $app_port

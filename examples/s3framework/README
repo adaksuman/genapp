@@ -1,7 +1,0 @@
-Just a sketch of what a s3 downloading framework would look and work like (ie where the downloaded framework contains install and start)
-
-The ./app dir is an example app, and an example framework.zip. metadata specifies where to get framework from in this case.
-
-Will need to cache the download url, and use a known bucket/location rather than a full url. 
-
-TODO: not sure why not substituting in proper variables yet

@@ -2,11 +2,11 @@
 
 genapp is a light weight framework for deploying and managing applications.
 
-genapp uses runit to supervise applications.
+?? genapp uses runit to supervise applications.
 
 # Production Requirements
 
-The following [runit][] tools must be installed and available on the path:
+?? The following [runit][] tools must be installed and available on the path:
 
 - chpst
 - runsvdir
@@ -61,15 +61,12 @@ Modify `priv/dev.config` as follows:
 - Set `plugins_conf_home` to an empty directory that will contain your plugin
   definitions
 
-You can leave `services_home` unchanged -- it's not used in development mode.
-
 Here's a sample `priv/dev.config` file (comments removed):
 
     [{genapp,
       [
        {devmode, true},
        {apps_home, "/home/garrett/genapp-dev/apps"},
-       {services_home, "/var/genapp/services"},
        {plugins_conf_home, "/home/garrett/genapp-dev/plugins"}
     ]}].
 
@@ -78,14 +75,14 @@ Here's a sample `priv/dev.config` file (comments removed):
 genapp plugins are single shell script files that are [sourced][] by genapp and
 that contain a `setup` function.
 
-Copy the "hello" example plugin to the directory specified in the genapp
+Copy the "simple_http" example plugin to the directory specified in the genapp
 `plugins_conf_home` directory:
 
-    cp examples/hello/plugin $PLUGINS_HOME/hello
+    cp examples/simple_http/plugin $PLUGINS_HOME/simple_http
 
 where `$PLUGINS_HOME` is the plugins conf home directory you created above.
 
-Note that the file is named "hello" -- this is how genapp identifies the
+Note that the file is named "simple_http" -- this is how genapp identifies the
 plugin.
 
 ## Create a Sample Project
@@ -93,10 +90,10 @@ plugin.
 In an empty directory, create `metadata.json`:
 
     {
-        "app.plugins": ["hello"]
+        "app.plugins": ["simple_http"]
     }
 
-Next, create `index.html`:
+Next, in the same directory, create `index.html`:
 
     <html>
       <p>This is my sample app!</p>
@@ -110,14 +107,16 @@ From the genapp source directory, run:
 
     make shell
 
-This will start an interactive shell that you can use to test and debug genapp.
+This will start an interactive shell that you can use to test and debug genapp
+plugins.
 
 If you see any errors, check the "Reason" section for details. Refer to *Common
 Errors* below for help.
 
 ## Deploy the Sample
 
-In the genapp shell, run this command (note that commands end in periods):
+In the genapp shell, run this command (note that the command ends with a period
+-- this is an Erlang convention):
 
     genapp:deploy("/path/to/sample_app").
 
@@ -127,9 +126,12 @@ Replace `/path/to/sample_app` with the full path to the directory containing
 If the applicaiton was deployed successfully, you will see `plugin_setup_ok`,
 otherwise you'll see some errors. Refer to *Common Errors* below for help.
 
-If deployed successfully, a sample application was installed in a subdirectory
-of `apps_home`. The subdirectory is a randomly generated eight character
-name. This name is also known as the *application ID*.
+If deployed successfully, genapp installed a sample in a subdirectory of
+`apps_home`. The subdirectory is a randomly generated eight character
+name. This name is also known as the *application ID*. The application ID will
+be displayed in the plugin setup info report, which looks something like this:
+
+    {plugin_setup_ok,{<<"simple_http">>,"c73e35b4",[]}}
 
 Use the `find` command to list the installed files:
 
@@ -149,14 +151,14 @@ You should see this:
     ./.genapp/ports/8652
     ./.genapp/setup_status
     ./.genapp/setup_status/ok
-    ./.genapp/setup_status/plugin_hello_0
+    ./.genapp/setup_status/plugin_simple_http_0
     ./index.html
     ./metadata.json
 
 ## Run the Application
 
-Deployed genapp applications are started using the file
-`.genapp/control/start`. From the application directory, run:
+genapp applications are started using the file `.genapp/control/start`. From
+the application directory, run:
 
     .genapp/control/start
 
@@ -172,8 +174,8 @@ You should see the `index.html` web page you created earlier.
 
 ## Undeploy the Application
 
-genapp "undeploys" an application by simply deleting the application
-directory. You can use the genapp shell to undeploy this way:
+genapp undeploys an application by deleting the application directory. You can
+use the genapp shell to undeploy this way:
 
     genapp:undeploy("APP_ID").
 
@@ -211,8 +213,8 @@ to the current user).
 
 ## Plugin Environment Variables
 
-When the plugin configuration file is sources, it has access to a number of
-environment variables it can use to perform setup.
+When the plugin configuration file is sourced, it has access to a number of
+environment variables it can use to perform setup:
 
 **`plugin_conf`** the full file name of the plugin configuration file
 
@@ -243,11 +245,12 @@ Plugin metadata is specified as an JSON associative array named using
 
     "plugin." + PLUGIN_NAME
 
-For example, the "message" value above could be defined in metadata.json as
-follows:
+The "message" value above would be defined in metadata.json as follows:
 
     {
-        "plugin.hello": {"message": "Hello World!"}
+        "plugin.hello": {
+            "message": "Hello World!"
+        }
     }
 
 ## Control Files
@@ -268,7 +271,7 @@ application configuration.
 ## Installing Files
 
 Plugins may install project files (e.g. files located in "$meta_home") by
-copying them to the application directory (accessible as "$app_home").
+copying them to the application directory (accessible as "$app_dir").
 
 An application may alternatively specify a location for files in metadata --
 plugins can download, copy, etc. those files as needed.
@@ -282,8 +285,10 @@ Plugins run as the application user and are restricted to write access within
 the application directory.
 
 During setup, plugins are free to modify the contents of the application
-directory as needed. Once the setup is finalized, however, genapp recursively
-sets file ownership within the application directory as follows:
+directory as needed.
+
+Once the setup is finalized genapp recursively sets file ownership within the
+application directory as follows:
 
 - File and directory owner is "root"
 - File and directory group is the application user's primary group
@@ -296,7 +301,7 @@ create that directory and make it group writable:
 
     mkdir -m 770 log
 
-## Plugin Development Lifecycle
+## Plugin Development Workflow
 
 ### Application Type
 
@@ -317,10 +322,10 @@ requirements.
 ### "Project" to "Applicaiton" Mapping
 
 If a plugin is installing a precompiled, pre-packaged application, its job is
-very simple. It will probably just need to copy the required runtime files and
-generate a simple shell script wrapper for the application's executable.
+very simple -- it will probably just need to copy the required runtime files
+and generate a simple shell script wrapper for the application's executable.
 
-In most cases however, a plugin needs to tranform project artifacts to
+In many cases however, a plugin needs to tranform project artifacts to
 appropriate runtime artifacts. These are the types of operations a plugin might
 perform:
 
@@ -341,7 +346,7 @@ In the plugin file, create a `setup` function like this:
 
     setup() {
         echo 'while true; do echo "TODO: run my app"; sleep 1; done' > \
-	    "$control_dir/start"
+            "$control_dir/start"
         chmod 550 "$control_dir/start"
     }
 
@@ -351,7 +356,7 @@ Create a test application that contains a single `metadata.json` file that
 looks like this:
 
     {
-        "app.plugins": ["my_plugins"]
+        "app.plugins": ["my_plugin"]
     }
 
 Replace `my_plugin` with the name of your plugin (i.e. the name of the file or
@@ -403,7 +408,7 @@ that may improve your code. Here's an example:
 
 ### Freely use plugin supporting files
 
-Most non-trivial plugins should not be implemented as a single file. The plugin
+Non-trivial plugins will not be implemented as a single file. The plugin
 configuration file may reference plugin-specific files from a well known (or
 configured) location. The plugin should be installed or configured so that it
 can access its supporting files.

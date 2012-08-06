@@ -1,4 +1,0 @@
-{
-    "app.plugins": ["s3zip"] ,
-    "plugin.s3zip" : { "framework" : "file:///tmp/framework.zip" }
-}
