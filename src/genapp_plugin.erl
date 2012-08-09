@@ -26,7 +26,7 @@ setup_app(Plugin, App) ->
 
 setup_app(normal, Plugin, #app{dir=Dir, user=User}=App) ->
     genapp_extension:run_as(
-      User, setup_app_script(app),
+      User, setup_app_script(App), [],
       [{cd, Dir}, {env, app_setup_env(Plugin, App)}],
       ?APP_SETUP_TIMEOUT);
 setup_app(devmode, Plugin, #app{dir=Dir}=App) ->
@@ -62,8 +62,9 @@ app_setup_env(
         {"app_dir", env_val(Dir)},
         {"app_user", env_val(User)},
         {"meta_home", env_val(MetaHome)},
-        {"control_dir", control_dir(App)},
-	{"log_dir", log_dir(App)}],
+        {"genapp_dir", genapp_dir:root(App)},
+        {"control_dir", genapp_dir:subdir(App, ?GENAPP_CONTROL_SUBDIR)},
+        {"log_dir", genapp_dir:subdir(App, ?GENAPP_LOG_SUBDIR)}],
        app_ports_env(Ports),
        plugin_metadata(Meta)]).
 
@@ -85,12 +86,6 @@ acc_ports([P|Rest], N, Acc) ->
     acc_ports(
       Rest, N + 1,
       [{"app_port" ++ integer_to_list(N), integer_to_list(P)}|Acc]).
-
-control_dir(#app{dir=Dir}) ->
-    filename:join([Dir, ".genapp", "control"]).
-
-log_dir(#app{dir=Dir}) ->
-    filename:join([Dir, ".genapp", "log"]).
 
 plugin_metadata(Meta) ->
     acc_plugin_metadata(genapp_metadata:names(Meta), Meta, []).

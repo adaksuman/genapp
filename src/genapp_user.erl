@@ -5,13 +5,13 @@
 
 -module(genapp_user).
 
--export([create/1, delete/1]).
+-export([create/1, delete/1, app_user/1]).
 
 -include("genapp.hrl").
 
 -define(USER_NOT_EXISTS, 6).
 -define(NO_USER_PROCS, 1).
--define(USER_CMD_TIMEOUT, 5000).
+-define(USER_CMD_TIMEOUT, 30000).
 
 create(App) ->
     create(genapp:mode(), App).
@@ -28,7 +28,8 @@ current_user() ->
 handle_user_env(false) -> error(no_user_env);
 handle_user_env(User) -> User.
 
-app_user(#app{id=Id}) -> "app_" ++ Id.
+app_user(#app{id=Id}) -> app_user(Id);
+app_user(AppId) -> "app_" ++ AppId.
 
 handle_useradd({0, _}, User) -> User;
 handle_useradd({_, Err}, _User) -> error(Err).

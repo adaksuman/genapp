@@ -59,7 +59,7 @@ handle_stage_result(App, _App0, Rest) ->
     apply_stages(App, Rest).
 
 notify(Stage, App) ->
-    genapp_event:publish_app_deploy({Stage, App}).
+    genapp_event:publish_app_deploy(self(), {Stage, App}).
 
 %%%===================================================================
 %%% Stage dispatch
@@ -70,7 +70,7 @@ stage(check_plugins, App)->
 stage(reservation, _) ->
     [app_directory, {setup_status, pending}, app_user, ports];
 stage(setup, _) ->
-    [pre_setup, plugins_setup, post_setup, service];
+    [pre_setup, plugins_setup, post_setup, {extension_notify, setup}];
 stage(app_directory, App) ->
     create_app_directory(App);
 stage(app_user, App) ->
@@ -91,8 +91,8 @@ stage(setup_script, App) ->
     write_app_setup_script(App);
 stage({setup_status, Status}, App) ->
     setup_status(Status, App);
-stage(service, App) ->
-    create_service(App).
+stage({extension_notify, Event}, App) ->
+    extension_notify_app_event(Event, App).
 
 %%%===================================================================
 %%% Check plugins
@@ -139,13 +139,12 @@ create_new_app_dir(#app{id=Id}) ->
 
 create_app_dir_skel(App) ->
     set_initial_app_dir_permissions(App),
-    GenAppDir = genapp_dir(App),
+    GenAppDir = genapp_dir:root(App),
     make_dir(GenAppDir),
-    make_subdirs(GenAppDir, ["setup_status", "control", "log"]),
+    make_subdirs(GenAppDir, [?GENAPP_SETUP_STATUS_SUBDIR,
+			     ?GENAPP_CONTROL_SUBDIR,
+			     ?GENAPP_LOG_SUBDIR]),
     App.
-
-genapp_dir(#app{dir=Dir}) ->
-    filename:join(Dir, ".genapp").
 
 set_initial_app_dir_permissions(#app{dir=Dir}) ->
     ok = file:change_mode(Dir, 8#00700).
@@ -155,7 +154,7 @@ write_app_metadata(App) ->
     App.
 
 app_metadata_file(App) ->
-    filename:join([genapp_dir(App), "metadata"]).
+    filename:join(genapp_dir:root(App), ?GENAPP_METADATA_FILE).
 
 write_metadata(#app{meta=Meta}, File) ->
     ok = file:write_file(File, jiffy:encode(Meta)).
@@ -183,7 +182,8 @@ plugin_app_setup_script(#app{dir=Dir}) ->
 %%%===================================================================
 
 create_app_user(App) ->
-    App#app{user=genapp_user:create(App)}.
+    User = genapp_user:create(App),
+    App#app{user=User}.
 
 %%%===================================================================
 %%% Reserve ports
@@ -252,9 +252,9 @@ handle_plugin_setup_app({N, Err}, Plugin, #app{id=Id}=App) ->
 
 post_setup(App) ->
     post_setup_set_owner(genapp:mode(), App),
-    GenAppDir = genapp_dir(App),
+    GenAppDir = genapp_dir:root(App),
     set_dir_readonly(GenAppDir),
-    set_subdirs_group_writeable(GenAppDir, ["log"]),
+    set_subdirs_group_writeable(GenAppDir, [?GENAPP_LOG_SUBDIR]),
     delete_app_startup_script(App),
     App.
 
@@ -297,7 +297,8 @@ check_status_delete({error, enoent}) -> ok.
 
 status_file(Status, App) ->
     filename:join(
-      [genapp_dir(App), "setup_status", atom_to_list(Status)]).
+      genapp_dir:subdir(App, ?GENAPP_SETUP_STATUS_SUBDIR),
+      atom_to_list(Status)).
 
 touch_status(Status, App) ->
     ok = file:write_file(status_file(Status, App), <<>>).
@@ -307,16 +308,15 @@ plugin_setup_result(Plugin, Exit, Out, App) ->
 
 plugin_setup_result_file(Plugin, Exit, App) ->
     filename:join(
-      [genapp_dir(App), "setup_status",
-       plugin_setup_result_name(Plugin, Exit)]).
+      genapp_dir:subdir(App, ?GENAPP_SETUP_STATUS_SUBDIR),
+      plugin_setup_result_name(Plugin, Exit)).
 
 plugin_setup_result_name(Plugin, Exit) ->
     "plugin_" ++ binary_to_list(Plugin) ++ "_" ++ integer_to_list(Exit).
 
 %%%===================================================================
-%%% App service
+%%% Notification
 %%%===================================================================
 
-create_service(App) ->
-    Service = genapp_extension:create_service(App),
-    App#app{service=Service}.
+extension_notify_app_event(Event, App) ->
+    genapp_extension:notify_app_event(Event, App).

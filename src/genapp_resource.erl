@@ -14,7 +14,8 @@
 -export([start_link/0,
          create_new_app_dir/0,
          create_new_app_dir/1,
-         app_dirs/0,
+         apps/0,
+         app_dir/1,
          reserve_app_ports/2,
 	 query_app/2,
 	 query_apps/1,
@@ -31,12 +32,14 @@
 -define(RM_APP_DIR_TIMEOUT, 30000).
 -define(TAIL_TIMEOUT, 30000).
 
--define(is_valid_range(Min, Max),
+-define(valid_range(Min, Max),
         (is_integer(Min) andalso
          is_integer(Max) andalso
          Min >= 1024 andalso
          Max >= Min andalso
          Max < 65534)).
+
+-define(valid_appid(Id), length(Id) > 0).
 
 %%%===================================================================
 %%% Public API
@@ -56,8 +59,11 @@ reserve_app_ports(#app{id=Id}, Count) ->
 reserve_app_ports(AppId, Count) ->
     e2_service:call(?MODULE, {reserve_ports, AppId, Count}).
 
-app_dirs() ->
-    e2_service:call(?MODULE, app_dirs).
+apps() ->
+    e2_service:call(?MODULE, apps).
+
+app_dir(AppId) ->
+    e2_service:call(?MODULE, {app_dir, AppId}).
 
 -type query_option() :: ports | metadata | setup_status.
 -type app_id() :: string().
@@ -69,13 +75,13 @@ query_apps(Options) ->
 
 -spec query_app(app_id(), [query_option()]) -> [query_result()].
 
-query_app(AppId, Options) ->
+query_app(AppId, Options) when ?valid_appid(AppId) ->
     e2_service:call(?MODULE, {query_app, AppId, Options}).
 
-delete_app_dir(AppId) ->
+delete_app_dir(AppId) when ?valid_appid(AppId) ->
     e2_service:call(?MODULE, {delete_app_dir, AppId}).
 
-app_exists(AppId) ->
+app_exists(AppId) when ?valid_appid(AppId) ->
     e2_service:call(?MODULE, {app_exists, AppId}).
 
 %%%===================================================================
@@ -94,7 +100,7 @@ port_range() ->
     validate_port_range(Min, Max),
     {Min, Max}.
 
-validate_port_range(Min, Max) when ?is_valid_range(Min, Max) -> ok;
+validate_port_range(Min, Max) when ?valid_range(Min, Max) -> ok;
 validate_port_range(Min, Max) -> exit({invalid_port_range, {Min, Max}}).
 
 apps_home() ->
@@ -116,8 +122,10 @@ handle_msg({new_app_dir, AppId}, _From, State) ->
     {reply, new_app_dir(AppId, State), State};
 handle_msg({reserve_ports, AppId, Count}, _From, State) ->
     {reply, reserve_ports(AppId, Count, State), State};
-handle_msg(app_dirs, _From, State) ->
+handle_msg(apps, _From, State) ->
     {reply, apps(State), State};
+handle_msg({app_dir, AppId}, _From, State) ->
+    {reply, check_app_dir(AppId, State), State};
 handle_msg({query_apps, Options}, _From, State) ->
     {reply, query_apps_(Options, State), State};
 handle_msg({query_app, Id, Options}, _From, State) ->
@@ -247,7 +255,8 @@ write_ports(Ports, AppDir) ->
     lists:foreach(fun(Port) -> write_port(Port, AppDir) end, Ports).
 
 write_port(Port, AppDir) ->
-    File = filename:join([AppDir, ".genapp", "ports", integer_to_list(Port)]),
+    File = filename:join([AppDir, ?GENAPP_SUBDIR, ?GENAPP_PORTS_SUBDIR,
+                          integer_to_list(Port)]),
     ok = filelib:ensure_dir(File),
     ok = file:write_file(File, <<>>).
 
@@ -283,8 +292,8 @@ query_app_acc(Dir, [setup_logs|Rest], Acc) ->
     query_app_acc(Dir, Rest, [{setup_logs, app_setup_logs(Dir)}|Acc]);
 query_app_acc(Dir, [{log_tail, Bytes}|Rest], Acc) ->
     query_app_acc(Dir, Rest, [{log_tail, log_tail(Dir, Bytes)}|Acc]);
-query_app_acc(Dir, [_Other|Rest], Acc) ->
-    query_app_acc(Dir, Rest, Acc).
+query_app_acc(Dir, [MetaFile|Rest], Acc) ->
+    query_app_acc(Dir, Rest, [{MetaFile, meta_file(Dir, MetaFile)}|Acc]).
 
 %%%===================================================================
 %%% List ports
@@ -297,7 +306,7 @@ app_ports(AppDir) ->
     handle_ports_dir_list(file:list_dir(ports_dir(AppDir)), []).
 
 ports_dir(AppDir) ->
-    filename:join([AppDir, ".genapp", "ports"]).
+    filename:join([AppDir, ?GENAPP_SUBDIR, ?GENAPP_PORTS_SUBDIR]).
 
 handle_ports_dir_list({ok, Dirs}, Ports) ->
     lists:foldl(
@@ -320,7 +329,7 @@ app_metadata(AppDir) ->
     handle_read_app_metadata(file:read_file(MetaFile)).
 
 app_metadata_file(AppDir) ->
-    filename:join([AppDir, ".genapp", "metadata"]).
+    filename:join([AppDir, ?GENAPP_SUBDIR, ?GENAPP_METADATA_FILE]).
 
 handle_read_app_metadata({ok, Bin}) -> Bin;
 handle_read_app_metadata({error, Err}) -> {error, Err}.
@@ -336,13 +345,13 @@ app_setup_logs(AppDir) ->
     read_setup_logs(plugin_setup_log_files(AppDir)).
 
 setup_status_dir(AppDir) ->
-    filename:join([AppDir, ".genapp", "setup_status"]).
+    filename:join([AppDir, ?GENAPP_SUBDIR, ?GENAPP_SETUP_STATUS_SUBDIR]).
 
 app_setup_status(_Dir, []) -> unknown;
 app_setup_status(Dir, [Status|Rest]) ->
-    StatusFile = setup_status_file(Dir, Status),
     handle_check_setup_status(
-      filelib:is_file(StatusFile), Status, Dir, Rest).
+      filelib:is_file(setup_status_file(Dir, Status)),
+      Status, Dir, Rest).
 
 setup_status_file(Dir, Status) ->
     filename:join(Dir, atom_to_list(Status)).
@@ -394,7 +403,7 @@ validate_app_dir(Dir) ->
     validate_app_dir_parts(filename:split(Dir)).
 
 validate_app_dir_parts(Parts) when length(Parts) < 3 ->
-    {error, invalid_app};
+    error(invalid_app);
 validate_app_dir_parts(_Parts) -> ok.
 
 handle_rm_dir({0, _}) -> ok;
@@ -409,7 +418,7 @@ log_tail(AppDir, Bytes) ->
     tail(current_log(AppDir), Bytes).
 
 current_log(AppDir) ->
-    filename:join([AppDir, ".genapp", "log", "current"]).
+    filename:join([AppDir, ?GENAPP_SUBDIR, ?GENAPP_LOG_SUBDIR, "current"]).
 
 tail(File, Bytes) when is_integer(Bytes), Bytes >= 0 ->
     handle_tail_result(
@@ -421,6 +430,23 @@ tail(_File, Bytes) ->
 handle_tail_result({0, Out}) -> {ok, Out};
 handle_tail_result({1, _}) -> {ok, ""};
 handle_tail_result({N, Err}) -> {error, {N, Err}}.
+
+%%%===================================================================
+%%% App meta file
+%%%===================================================================
+
+meta_file(Dir, MetaFile) ->
+    read_meta_file(meta_file_name(Dir, MetaFile)).
+
+meta_file_name(AppDir, MetaFile) ->
+    filename:join([AppDir, ?GENAPP_SUBDIR, MetaFile]).
+
+read_meta_file(File) ->
+    handle_meta_file_read(file:read_file(File)).
+
+handle_meta_file_read({ok, Bin}) -> Bin;
+handle_meta_file_read({error, enoent}) -> error;
+handle_meta_file_read({error, enotdir}) -> error.
 
 %%%===================================================================
 %%% Misc

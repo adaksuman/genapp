@@ -16,7 +16,7 @@ run(Exe, Args, Options, Timeout) ->
         {error, Err} -> error(Err);
         {N, Out} when is_integer(N) -> {N, Out}
     after
-        Timeout -> {error, timeout}
+        Timeout -> error(timeout)
     end.
 
 find_exe(Exe) ->

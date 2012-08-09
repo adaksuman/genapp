@@ -8,12 +8,7 @@ init() ->
     {ok, children(genapp:mode())}.
 
 children(normal) ->
-    [genapp_event,
-     genapp_resource,
-     {genapp_tasks, [supervisor]},
-     genapp_extension,
-     genapp_extension_defaults,
-     genapp_user_cleanup];
+    children(devmode) ++ [genapp_user_cleanup];
 children(devmode) ->
     [genapp_event,
      genapp_resource,
