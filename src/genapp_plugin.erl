@@ -113,8 +113,6 @@ acc_plugin_env(Plugin, [Name|Rest], Env, Acc) ->
 plugin_env_name(Plugin, Name) ->
     <<"plugin_", Plugin/binary, "_", Name/binary>>.
 
-plugin_env_val(Bin) when is_binary(Bin) -> Bin;
+plugin_env_val(B) when is_binary(B) -> B;
 plugin_env_val(I) when is_integer(I) -> integer_to_list(I);
-plugin_env_val(null) -> "";
-plugin_env_val(Other) -> jiffy:encode(Other).
-
+plugin_env_val(null) -> "".
