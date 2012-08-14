@@ -106,7 +106,14 @@ acc_plugin_env(Plugin, [Name|Rest], Env, Acc) ->
     acc_plugin_env(Plugin, Rest, Env, [NameVal|Acc]).
 
 plugin_env_name(Plugin, Name) ->
-    <<"plugin_", Plugin/binary, "_", Name/binary>>.
+    SafeName = safe_env_name(Name),
+    <<"plugin_", Plugin/binary, "_", SafeName/binary>>.
+
+safe_env_name(Name) ->
+    to_lower(iolist_to_binary(re:replace(Name, "\\W", "_", [global]))).
+
+to_lower(B) when is_binary(B) ->
+    list_to_binary(string:to_lower(binary_to_list(B))).
 
 plugin_env_val(B) when is_binary(B) -> B;
 plugin_env_val(I) when is_integer(I) -> integer_to_list(I);
