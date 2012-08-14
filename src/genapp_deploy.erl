@@ -8,34 +8,29 @@
 
 -export([init/1, handle_task/1]).
 
--define(DEFAULT_METADATA_FILE, "metadata.json").
-
 %%%===================================================================
 %%% API
 %%%===================================================================
 
-start_link(Home) ->
-    start_link(Home, []).
+start_link(PkgDir) ->
+    start_link(PkgDir, []).
 
-start_link(Home, Options) ->
-    e2_task:start_link(?MODULE, [Home, Options]).
+start_link(PkgDir, Options) ->
+    e2_task:start_link(?MODULE, [PkgDir, Options]).
 
 %%%===================================================================
 %%% Init
 %%%===================================================================
 
-init([Home, Options]) ->
-    {ok, new_app(Home, Options)}.
+init([PkgDir, Options]) ->
+    {ok, new_app(PkgDir, Options)}.
 
-new_app(Home, Options) ->
-    Meta = genapp_metadata:parse_file(metadata_file(Home, Options)),
-    #app{id=app_id(Options), meta=Meta, meta_home=Home}.
+new_app(PkgDir, Options) ->
+    Meta = genapp_metadata:parse_file(metadata_file(PkgDir)),
+    #app{id=app_id(Options), meta=Meta, pkg_dir=PkgDir}.
 
-metadata_file(Home, Options) ->
-    filename:join(Home, metadata_file_option(Options)).
-
-metadata_file_option(Options) ->
-    proplists:get_value(metadata_file, Options, ?DEFAULT_METADATA_FILE).
+metadata_file(PkgDir) ->
+    filename:join([PkgDir, ?GENAPP_SUBDIR, ?GENAPP_METADATA_FILE]).
 
 app_id(Options) ->
     proplists:get_value(id, Options).

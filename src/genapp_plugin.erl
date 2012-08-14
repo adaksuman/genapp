@@ -55,13 +55,13 @@ app_setup_env(
                user=User,
                ports=Ports,
                meta=Meta,
-               meta_home=MetaHome}=App) ->
+               pkg_dir=PkgDir}=App) ->
     lists:concat(
       [[{"plugin_conf", plugin_conf(Plugin)},
         {"app_id", env_val(Id)},
         {"app_dir", env_val(Dir)},
         {"app_user", env_val(User)},
-        {"meta_home", env_val(MetaHome)},
+        {"pkg_dir", env_val(PkgDir)},
         {"genapp_dir", genapp_dir:root(App)},
         {"control_dir", genapp_dir:subdir(App, ?GENAPP_CONTROL_SUBDIR)},
         {"log_dir", genapp_dir:subdir(App, ?GENAPP_LOG_SUBDIR)}],

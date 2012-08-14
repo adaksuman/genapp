@@ -25,15 +25,17 @@ Verify that you have satisfied *Development Requirements* above.
 You'll also need Python version 2.x installed to test the application in
 *Create a sample project* below.
 
-Relative file names below are relative to the directory containing this
-`README.md` file.
+## Get genapp source
+
+Clone a genapp repository to a local directory -- this local directory is
+referred to as `$genapp_home` below.
 
 ## Build genapp
 
-From the genapp source directory (i.e. the directory containing README.md),
-run:
+Change to `$genapp_home` and run `make`:
 
-    make
+    $ cd $genapp_home
+    $ make
 
 This process will download required libraries from github and compile the code.
 
@@ -42,7 +44,7 @@ This process will download required libraries from github and compile the code.
 genapp uses `priv/dev.config` by default when running locally. Copy the
 configuration template:
 
-    cp priv/dev.config.in priv/dev.config
+    $ cp priv/dev.config.in priv/dev.config
 
 Modify `priv/dev.config` as follows:
 
@@ -65,40 +67,62 @@ Here's a sample `priv/dev.config` file (comments removed):
 
 ## Setup a Sample Plugin
 
-genapp plugins are single shell script files that are [sourced][] by genapp and
+genapp plugins are single bash script files that are [sourced][] by genapp and
 that contain a `setup` function.
 
 Copy the "simple_http" example plugin to the directory specified in the genapp
 `plugins_conf_home` directory:
 
-    cp examples/simple_http/plugin $PLUGINS_HOME/simple_http
+    $ cp examples/simple_http/plugin $plugins_home/simple_http
 
-where `$PLUGINS_HOME` is the plugins conf home directory you created above.
+where `$plugins_home` is the plugins conf home directory you created above.
 
 Note that the file is named "simple_http" -- this is how genapp identifies the
 plugin.
 
 ## Create a Sample Project
 
-In an empty directory, create `metadata.json`:
+Create an empty directory that will serve as your application *package
+directory*. For example:
+
+    $ cd ~
+    $ mkdir sample_app
+
+Next, create the `.genapp` subdirectory inside the package directory. This will
+contain genapp related files (note the leading period in the directory name):
+
+	$ cd sample_app
+    $ mkdir .genapp
+
+Create a file named `metadata.json` inside the `.genapp` directory. It should
+look like this:
 
     {
         "app.plugins": ["simple_http"]
     }
 
-Next, in the same directory, create `index.html`:
+In the root of your package directory (e.g. `sample_app`), create `index.html`:
 
     <html>
       <p>This is my sample app!</p>
       <p>It was deployed by genapp using
-        <a href="metadata.json">metadata.json</a>.</p>
+        <a href=".genapp/metadata.json">metadata.json</a>.</p>
     </html>
+
+When you're done, you should have an application package structure that looks
+like this:
+
+    sample_app/
+	sample_app/.genapp/
+	sample_app/.genapp/metadata.json
+	sample_app/index.html
 
 ## Start genapp
 
-From the genapp source directory, run:
+From `$genapp_home` run `make shell`:
 
-    make shell
+    $ cd $genapp_home
+    $ make shell
 
 This will start an interactive shell that you can use to test and debug genapp
 plugins.
@@ -111,15 +135,15 @@ Errors* below for help.
 In the genapp shell, run this command (note that the command ends with a period
 -- this is an Erlang convention):
 
-    genapp:deploy("/path/to/sample_app").
+    1> genapp:deploy("/path/to/sample_app").
 
-Replace `/path/to/sample_app` with the full path to the directory containing
-`metadata.json` created above.
+Replace `/path/to/sample_app` with the full path to the application package
+directory created above.
 
 If the applicaiton was deployed successfully, you will see `plugin_setup_ok`,
-otherwise you'll see some errors. Refer to *Common Errors* below for help.
+otherwise you'll see errors. Refer to *Common Errors* below for help.
 
-If deployed successfully, genapp installed a sample in a subdirectory of
+If deployed successfully, genapp installed the application in a subdirectory of
 `apps_home`. The subdirectory is a randomly generated eight character
 name. This name is also known as the *application ID*. The application ID will
 be displayed in the plugin setup info report, which looks something like this:
@@ -128,32 +152,31 @@ be displayed in the plugin setup info report, which looks something like this:
 
 Use the `find` command to list the installed files:
 
-    cd $APP_DIR
-    find | sort
+    $ cd $app_dir
+    $ find | sort
 
-`$APP_DIR` is the full path to the application subdirectory in `apps_home`.
+`$app_dir` is the full path to the application subdirectory in `apps_home`.
 
-You should see this:
+The directory structure of the installed application should look like this:
 
     ./.genapp
     ./.genapp/control
     ./.genapp/control/start
     ./.genapp/log
-    ./.genapp/metadata
+    ./.genapp/metadata.json
     ./.genapp/ports
     ./.genapp/ports/8652
     ./.genapp/setup_status
     ./.genapp/setup_status/ok
     ./.genapp/setup_status/plugin_simple_http_0
     ./index.html
-    ./metadata.json
 
 ## Run the Application
 
 genapp applications are started using the file `.genapp/control/start`. From
 the application directory, run:
 
-    .genapp/control/start
+    $ .genapp/control/start
 
 If Python 2.x is installed on your system, you should see this output:
 
@@ -172,8 +195,8 @@ use the genapp shell to undeploy this way:
 
     genapp:undeploy("APP_ID").
 
-Replace `APP_ID` with the eight character application ID (same as the
-application directory name).
+Replace `APP_ID` with the eight character application ID (used application
+directory name).
 
 ## Common Errors
 
@@ -188,19 +211,32 @@ Create the missing directories and restart genapp.
 An error occurred reading the project metadata. The error will have additional
 details.
 
-`enoent` indicates that metadata file doesn't exist.
+`enoent` indicates that metadata file doesn't exist. Verify that the package
+directory used in the deploy operation contains `.genapp/metadata.json`.
+
+### `{plugin_not_installed,<<"xxx">>}`
+
+genapp could not find the plugin named "xxx".
+
+Verify that the `plugins_conf_home` directory as specified in
+`$genapp_home/priv/dev.config` contains the expected plugin. Note that a plugin
+is a bash script in the plugins conf home directory that has the same name as
+the plugin.
+
+Plugins may be copied to the conf home or symlinked as needed.
 
 # Plugin Development
 
 genapp uses plugins to setup an application. Each plugin listed in the
 "apps.plugins" metadata is given an opportunity to perform setup operations.
 
-Each plugin must define a `setup` function in its configuration file.
+Each plugin is a bash script that must define a `setup` function.
 
-Plugin configuration files are located in `plugins_conf_home` and must match
-the name value given in the project metadata.
+Plugin configuration files are located in `plugins_conf_home` (as defined in
+the genapp configuration file -- e.g. see `priv/dev.config` in *QuickStart*
+above) and must match the name value given in the project metadata.
 
-Plugins run under the application user in production. In development mode, they
+Plugins run by the application user in production. In development mode, they
 run as the USER environment variable accessible to the genapp process (defaults
 to the current user).
 
@@ -211,13 +247,16 @@ environment variables it can use to perform setup:
 
 **`plugin_conf`** the full file name of the plugin configuration file
 
+**`pkg_dir`** the application package directory
+
 **`app_id`** the application ID (randomly assigned eight character string)
 
 **`app_dir`** the application directory (located in apps_home)
 
 **`app_user`** the user associated with the application
 
-**`meta_home`** the location of the metadata file
+**`genapp_dir` ** the genapp directory associated with $app_dir, which contains
+  all genapp related files
 
 **`control_dir`** the genapp control directory for the application (contains
 the start script)
@@ -248,7 +287,8 @@ The "message" value above would be defined in metadata.json as follows:
 
 ## Control Files
 
-genapp applications are started using this control file:
+If an application was deployed successfully, it should be runnable from its
+application directory using this control file:
 
     .genapp/control/start
 
@@ -256,6 +296,8 @@ The plugins listed in the project metadata must coordinate the creation of this
 control file as well as any required installation and configuration.
 
 All control files must be executable.
+
+The start control file should  block -- i.e. it should run in the background.
 
 Typically, a single plugin assumes responsibility for creating the `start`
 control file. Ancillary plugins may then extend or otherwise modify the core
@@ -315,8 +357,8 @@ requirements.
 ### "Project" to "Applicaiton" Mapping
 
 If a plugin is installing a precompiled, pre-packaged application, its job is
-very simple -- it will probably just need to copy the required runtime files
-and generate a simple shell script wrapper for the application's executable.
+simple -- it needs to copy the required runtime files and generate a simple
+shell script wrapper for the application's executable.
 
 In many cases however, a plugin needs to tranform project artifacts to
 appropriate runtime artifacts. These are the types of operations a plugin might
@@ -345,8 +387,8 @@ In the plugin file, create a `setup` function like this:
 
 ### Test Application
 
-Create a test application that contains a single `metadata.json` file that
-looks like this:
+Create a test application that contains a `.genapp` subdirectory, which in turn
+contains a `metadata.json` file that looks like this:
 
     {
         "app.plugins": ["my_plugin"]
@@ -360,7 +402,7 @@ Deploy the test application in the genapp shell:
     genapp:deploy("/path/to/my_app").
 
 Replace `/path/to/my_app` with the fill path to your test app directory
-(i.e. the directory containing `metadata.json`).
+(i.e. the directory containing `.genapp/metadata.json`).
 
 Run the application by executing its `start` script, which was created by the
 plugin. You should see a repeating list of:

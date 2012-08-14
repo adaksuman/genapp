@@ -1,7 +1,7 @@
 # -*-shell-script-*-
 setup() {
-    # Install everything from meta home (location of metadata file)
-    cp -a $meta_home/* $app_dir/
+    # Install everything from pkg_dir
+    cp -a $pkg_dir/* $app_dir/
 
     # Create a start script that runs Python's SimpleHTTPServer (this will
     # serve the directory contents over HTTP on $app_port)
