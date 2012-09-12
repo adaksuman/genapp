@@ -10,7 +10,7 @@
 
 -include("genapp.hrl").
 
--export([is_installed/1, setup_app/2]).
+-export([local_plugin_dir/1, setup_app/2]).
 
 -define(APP_SETUP_TIMEOUT, 60000).
 
@@ -18,46 +18,53 @@
 %%% API
 %%%===================================================================
 
-is_installed(Name) ->
-    filelib:is_file(plugin_conf(Name)).
+local_plugin_dir(Name) ->
+    PluginDir = plugin_dir(Name),
+    handle_is_plugin_dir(filelib:is_dir(PluginDir), PluginDir).
+
+handle_is_plugin_dir(true, Dir) -> {ok, Dir};
+handle_is_plugin_dir(false, _Dir) -> error.
 
 setup_app(Plugin, App) ->
     setup_app(genapp:mode(), Plugin, App).
 
-setup_app(normal, Plugin, #app{dir=Dir, user=User}=App) ->
-    genapp_extension:run_as(
-      User, setup_app_script(App), [],
-      [{cd, Dir}, {env, app_setup_env(Plugin, App)}],
-      ?APP_SETUP_TIMEOUT);
-setup_app(devmode, Plugin, #app{dir=Dir}=App) ->
-    genapp_extension:run(
-      setup_app_script(App), [],
-      [{cd, Dir}, {env, app_setup_env(Plugin, App)}],
-      ?APP_SETUP_TIMEOUT).
+setup_app(Mode, PluginDir, #app{dir=AppDir, user=User}=App) ->
+    SetupScript = app_setup_script(App),
+    SetupEnv = app_setup_env(PluginDir, App),
+    RunOptions = [{cd, AppDir}, {env, SetupEnv}],
+    run_script(Mode, SetupScript, User, RunOptions, ?APP_SETUP_TIMEOUT).
+
+run_script(normal, Script, User, Options, Timeout) ->
+    genapp_extension:run_as(User, Script, [], Options, Timeout);
+run_script(devmode, Script, _User, Options, Timeout) ->
+    genapp_extension:run(Script, [], Options, Timeout).
 
 %%%===================================================================
 %%% Plugin info
 %%%===================================================================
 
-plugin_conf(Name) ->
-    filename:join(conf_home(), Name).
+plugin_dir(Name) ->
+    filename:join(plugins_home(), Name).
 
-conf_home() ->
-    genapp:get_env(plugins_conf_home, ?DEFAULT_PLUGINS_CONF_HOME).
+plugins_home() ->
+    genapp:get_env(plugins_home, ?DEFAULT_PLUGINS_HOME).
 
-setup_app_script(#app{dir=Dir}) ->
+app_setup_script(#app{dir=Dir}) ->
     %% The "setup" script must exist in Dir as a pre-req for this call.
     filename:join(Dir, "setup").
 
-app_setup_env(
-  Plugin, #app{id=Id,
-               dir=Dir,
-               user=User,
-               ports=Ports,
-               meta=Meta,
-               pkg_dir=PkgDir}=App) ->
+%%%===================================================================
+%%% Plugin setup env
+%%%===================================================================
+
+app_setup_env(PluginDir, #app{id=Id,
+                              dir=Dir,
+                              user=User,
+                              ports=Ports,
+                              meta=Meta,
+                              pkg_dir=PkgDir}=App) ->
     lists:concat(
-      [[{"plugin_conf", plugin_conf(Plugin)},
+      [[{"plugin_dir", PluginDir},
         {"app_id", env_val(Id)},
         {"app_dir", env_val(Dir)},
         {"app_user", env_val(User)},
@@ -66,10 +73,15 @@ app_setup_env(
         {"control_dir", genapp_dir:subdir(App, ?GENAPP_CONTROL_SUBDIR)},
         {"log_dir", genapp_dir:subdir(App, ?GENAPP_LOG_SUBDIR)}],
        app_ports_env(Ports),
-       plugin_metadata(Meta)]).
+       metadata_env(Meta),
+       extra_metadata_env(PkgDir)]).
 
 env_val(undefined) -> "";
 env_val(Val) -> Val.
+
+%%%===================================================================
+%%% Ports env
+%%%===================================================================
 
 app_ports_env(undefined) ->
     [{"app_port_count", "0"}];
@@ -87,27 +99,19 @@ acc_ports([P|Rest], N, Acc) ->
       Rest, N + 1,
       [{"app_port" ++ integer_to_list(N), integer_to_list(P)}|Acc]).
 
-plugin_metadata(Meta) ->
-    acc_plugin_metadata(genapp_metadata:names(Meta), Meta, []).
+%%%===================================================================
+%%% Metadata env
+%%%===================================================================
 
-acc_plugin_metadata([], _Meta, Acc) -> Acc;
-acc_plugin_metadata([<<"plugin.", Plugin/binary>>=Name|Rest], Meta, Acc) ->
-    {ok, PluginEnv} = genapp_metadata:get_value(Name, Meta),
-    PluginNames = genapp_metadata:names(PluginEnv),
-    acc_plugin_metadata(
-      Rest, Meta, acc_plugin_env(Plugin, PluginNames, PluginEnv, Acc));
-acc_plugin_metadata([_|Rest], Meta, Acc) ->
-    acc_plugin_metadata(Rest, Meta, Acc).
+metadata_env(Meta) ->
+    [{metadata_env_name(Section, Name), metadata_env_value(Value)}
+     || {Section, Name, Value} <- flattened_metadata(Meta)].
 
-acc_plugin_env(_Plugin, [], _Env, Acc) -> Acc;
-acc_plugin_env(Plugin, [Name|Rest], Env, Acc) ->
-    {ok, Val} = genapp_metadata:get_value(Name, Env),
-    NameVal = {plugin_env_name(Plugin, Name), plugin_env_val(Val)},
-    acc_plugin_env(Plugin, Rest, Env, [NameVal|Acc]).
+flattened_metadata(Meta) ->
+    genapp_metadata:flatten(Meta).
 
-plugin_env_name(Plugin, Name) ->
-    SafeName = safe_env_name(Name),
-    <<"plugin_", Plugin/binary, "_", SafeName/binary>>.
+metadata_env_name(Section, Name) ->
+    iolist_to_binary([safe_env_name(Section), <<"_">>, safe_env_name(Name)]).
 
 safe_env_name(Name) ->
     to_lower(iolist_to_binary(re:replace(Name, "\\W", "_", [global]))).
@@ -115,6 +119,26 @@ safe_env_name(Name) ->
 to_lower(B) when is_binary(B) ->
     list_to_binary(string:to_lower(binary_to_list(B))).
 
-plugin_env_val(B) when is_binary(B) -> B;
-plugin_env_val(I) when is_integer(I) -> integer_to_list(I);
-plugin_env_val(null) -> "".
+metadata_env_value(B) when is_binary(B) -> B;
+metadata_env_value(I) when is_integer(I) -> integer_to_list(I);
+metadata_env_value(null) -> "";
+metadata_env_value(Obj) -> jiffy:encode(Obj).
+
+%%%===================================================================
+%%% Extra metadata env
+%%%===================================================================
+
+extra_metadata_env(PkgDir) ->
+    metadata_env(read_extra_metadata(PkgDir)).
+
+read_extra_metadata(PkgDir) ->
+    ExtraFile = extra_metadata_file(PkgDir),
+    maybe_read_metadata(filelib:is_file(ExtraFile), ExtraFile).
+
+extra_metadata_file(PkgDir) ->
+    filename:join([PkgDir, ?GENAPP_SUBDIR, ?GENAPP_METADATA_EXTRA_FILE]).
+
+maybe_read_metadata(true, File) ->
+    genapp_metadata:parse_file(File);
+maybe_read_metadata(false, _File) ->
+    genapp_metadata:parse(<<"{}">>).

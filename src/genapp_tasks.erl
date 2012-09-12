@@ -13,7 +13,6 @@ start_deploy(MetadataHome) ->
     e2_task_supervisor:start_task(
       ?MODULE, [genapp_deploy, start_link, [MetadataHome]]).
 
-start_deploy(MetadataHome, Options) ->
+start_deploy(PackageDir, Options) ->
     e2_task_supervisor:start_task(
-      ?MODULE, [genapp_deploy, start_link, [MetadataHome, Options]]).
-
+      ?MODULE, [genapp_deploy, start_link, [PackageDir, Options]]).

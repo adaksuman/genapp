@@ -18,11 +18,11 @@ start() ->
 parse_metadata(File) ->
     genapp_metadata:parse_file(File).
 
-deploy(MetadataHome) ->
-    genapp_tasks:start_deploy(MetadataHome).
+deploy(PackageDir) ->
+    genapp_tasks:start_deploy(PackageDir).
 
-deploy(MetadataHome, Options) ->
-    genapp_tasks:start_deploy(MetadataHome, Options).
+deploy(PackageDir, Options) ->
+    genapp_tasks:start_deploy(PackageDir, Options).
 
 undeploy(AppId) ->
     genapp_resource:delete_app_dir(AppId).

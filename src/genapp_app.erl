@@ -10,8 +10,8 @@ init() ->
 children(normal) ->
     children(devmode) ++ [genapp_user_cleanup];
 children(devmode) ->
-    [genapp_event,
-     genapp_resource,
+    [genapp_resource,
      {genapp_tasks, [supervisor]},
      genapp_extension,
-     genapp_extension_defaults].
+     genapp_extension_defaults,
+     genapp_temp_cleanup].
