@@ -12,6 +12,10 @@ deps:
 update-deps:
 	$(rebar) update-deps
 
+.PHONY: doc
+doc:
+	cd doc && make html
+
 clean:
 	$(rebar) clean
 
