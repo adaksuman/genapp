@@ -53,7 +53,7 @@ Modify `priv/dev.config` as follows:
   installed by genapp (e.g. `~/genapp-dev/apps` where "~" is your home
   directory -- you must specify your home directory explicitly as genapp will
   not recognize "~")
-- Set `plugins_conf_home` to an empty directory that will contain your plugin
+- Set `plugins_home` to an empty directory that will contain your plugin
   definitions
 
 Here's a sample `priv/dev.config` file (comments removed):
@@ -62,7 +62,7 @@ Here's a sample `priv/dev.config` file (comments removed):
       [
        {devmode, true},
        {apps_home, "/home/garrett/genapp-dev/apps"},
-       {plugins_conf_home, "/home/garrett/genapp-dev/plugins"}
+       {plugins_home, "/home/garrett/genapp-dev/plugins"}
     ]}].
 
 ## Setup a Sample Plugin
@@ -73,11 +73,11 @@ that contain a `setup` function.
 Copy the "simple_http" example plugin to the directory specified in the genapp
 `plugins_conf_home` directory:
 
-    $ cp examples/simple_http/plugin $plugins_home/simple_http
+    $ cp -rf examples/simple_http $plugins_home
 
 where `$plugins_home` is the plugins conf home directory you created above.
 
-Note that the file is named "simple_http" -- this is how genapp identifies the
+Note that the dir is named "simple_http" -- this is how genapp identifies the
 plugin.
 
 ## Create a Sample Project
@@ -91,14 +91,15 @@ directory*. For example:
 Next, create the `.genapp` subdirectory inside the package directory. This will
 contain genapp related files (note the leading period in the directory name):
 
-	$ cd sample_app
+    $ cd sample_app
     $ mkdir .genapp
 
 Create a file named `metadata.json` inside the `.genapp` directory. It should
 look like this:
-
     {
-        "app.plugins": ["simple_http"]
+        "app":{
+            "plugins":["simple_http"]
+        }
     }
 
 In the root of your package directory (e.g. `sample_app`), create `index.html`:
@@ -218,7 +219,7 @@ directory used in the deploy operation contains `.genapp/metadata.json`.
 
 genapp could not find the plugin named "xxx".
 
-Verify that the `plugins_conf_home` directory as specified in
+Verify that the `plugins_home` directory as specified in
 `$genapp_home/priv/dev.config` contains the expected plugin. Note that a plugin
 is a bash script in the plugins conf home directory that has the same name as
 the plugin.
@@ -370,7 +371,7 @@ perform:
   appropriate runtime locations
 
 ### Plugin Configuration
-
+[WARNING:  this section is out of date - (says spike 9/18/2012)]
 Start your plugin development with a single configuration file, either located
 in `plugins_conf_home` (see above) or symlinked to that directory.
 
