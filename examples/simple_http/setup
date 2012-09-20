@@ -7,6 +7,7 @@ cp -a $pkg_dir/* $app_dir/
 # serve the directory contents over HTTP on $app_port)
 cat > "$control_dir/start" << EOF
 #!/bin/sh
+cd $app_dir
 exec python2 -m SimpleHTTPServer $app_port
 EOF
 
