@@ -1,0 +1,309 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Plugins &mdash; genapp 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="genapp 0.1 documentation" href="index.html" />
+    <link rel="next" title="Deployed Directory Structure" href="directories.html" />
+    <link rel="prev" title="Application Metadata" href="metadata.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="index.html">
+          <span>genapp 0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>Plugins</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="metadata.html">Application Metadata</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="directories.html">Deployed Directory Structure</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="plugins">
+<h1>Plugins<a class="headerlink" href="#plugins" title="Permalink to this headline">¶</a></h1>
+<p>A genapp plugin is a directory that contains a script named <tt class="docutils literal"><span class="pre">setup</span></tt>, which is
+used by genapp to perform setup operations during application deployment.</p>
+<p>Multiple plugins may be used to perform independent setup operations during
+application deployment. At least one of the plugins must create a <tt class="docutils literal"><span class="pre">start</span></tt>
+control script that can be used to start the application.</p>
+<p>Plugin operations consist of:</p>
+<ul class="simple">
+<li>Copying application source files to the application&#8217;s install location</li>
+<li>Creating the <tt class="docutils literal"><span class="pre">start</span></tt> control script</li>
+<li>Writing configuration files that may be used by the start script</li>
+<li>Copying additional files such as runtime libraries to the application&#8217;s
+install location</li>
+</ul>
+<p>Below is a simple plugin that copies files from the application package to the
+application target directory (install location) and creates a start script that
+invokes a &#8216;run&#8217; script, which must be provided by the application:</p>
+<div class="highlight-python"><pre>cp -a $pkg_dir/* $app_dir/
+echo &quot;exec $app_dir/run&quot; &gt; &quot;$control_dir/start&quot;
+chmod 755 &quot;$control_dir/start&quot;</pre>
+</div>
+<p>This example represents the minimum work required of a plugin: install
+application files and create a start script.</p>
+<p>Plugins typically perform operations that are unique to a particular runtime
+environment. For example, a &#8220;java&#8221; plugin may create a start script that
+invokes the <tt class="docutils literal"><span class="pre">java</span></tt> command along with the appropriate list of arguments such
+as classpath settings, JVM arguments and the main Java class.</p>
+<div class="section" id="plugin-directory">
+<h2>Plugin Directory<a class="headerlink" href="#plugin-directory" title="Permalink to this headline">¶</a></h2>
+<p>A plugin is a directory that contains a setup script. The setup script must be
+named &#8220;setup&#8221; and located in the root plugin directory.</p>
+<p>The plugin directory may contain other files used by the plugin during
+setup. These commonly include:</p>
+<ul class="simple">
+<li>Architecture specific runtime environments (e.g. Python, Java, Ruby)</li>
+<li>Libraries specific to the plugin&#8217;s supported features (e.g. a Java logging
+library, if the plugin adds specialized logging features to a Java
+application)</li>
+<li>Control script and configuration file templates</li>
+</ul>
+</div>
+<div class="section" id="setup-script">
+<h2>Setup Script<a class="headerlink" href="#setup-script" title="Permalink to this headline">¶</a></h2>
+<p>The setup script must be a shell script that performs setup related operation
+when <em>sourced</em>. Sourcing is a method of reading and executing commands defined
+in a file. It&#8217;s similar to executing the file outright, but insteads runs the
+file commands in the context of the sourcing process.</p>
+<p>Plugin setup scripts do not have to be executable.</p>
+<p>Setup scripts have access to a number of environment variables, which are
+listed in the next section.</p>
+</div>
+<div class="section" id="start-scripts">
+<h2>Start Scripts<a class="headerlink" href="#start-scripts" title="Permalink to this headline">¶</a></h2>
+<p>One plugin listed in the application metadata must be responsible for creating
+a correct start control script. An application cannot run with this script.</p>
+<p>The start control script must be <tt class="docutils literal"><span class="pre">.genapp/control/setup</span></tt>. Plugins may use the
+<tt class="docutils literal"><span class="pre">control_dir</span></tt> environment to reference the genapp control subdirectory during
+setup (see below).</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">The start script must not exit until the application process
+exits. I.e. applications must not be run in the background.</p>
+</div>
+<div class="admonition hint">
+<p class="first admonition-title">Hint</p>
+<p class="last">While not strictly required, it&#8217;s a good idea to start application processes
+using the <tt class="docutils literal"><span class="pre">exec</span></tt> command, which will replace the start script shell with
+the application process itself. For more information on <tt class="docutils literal"><span class="pre">exec</span></tt> refer to
+the man page.</p>
+</div>
+</div>
+<div class="section" id="setup-environment-variables">
+<h2>Setup Environment Variables<a class="headerlink" href="#setup-environment-variables" title="Permalink to this headline">¶</a></h2>
+<p>When genapp sources the plugin&#8217;s setup script, it defines a number of genapp
+specific environment variables, which the setup script may reference.</p>
+<p>When the plugin configuration file is sourced, it has access to a number of
+environment variables it can use to perform setup.</p>
+<div class="section" id="app-dir">
+<h3><tt class="docutils literal"><span class="pre">app_dir</span></tt><a class="headerlink" href="#app-dir" title="Permalink to this headline">¶</a></h3>
+<p><em>The application directory (or, the application install location)</em></p>
+<p>Plugins must use this directory when copying</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">When referencing files located in the application directory, plugins must
+use absolute path names. Plugins cannot rely on a &#8220;current working
+directory&#8221; when an application is started. For example, when creating a
+script that references a file named &#8220;run&#8221; in the application directory, the
+plugin should use <tt class="docutils literal"><span class="pre">$app_dir/run</span></tt> instead of <tt class="docutils literal"><span class="pre">run</span></tt> or <tt class="docutils literal"><span class="pre">./run</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="pkg-dir">
+<h3><tt class="docutils literal"><span class="pre">pkg_dir</span></tt><a class="headerlink" href="#pkg-dir" title="Permalink to this headline">¶</a></h3>
+<p><em>The application source package directory</em></p>
+<p>Plugins may use this variable to reference files located in the application
+package &#8211; i.e. the top-level directory containing the application source
+files. Plugins typically copy files from the application package to the
+application directory as follows:</p>
+<div class="highlight-python"><pre>cp $app_pkg/myfile.txt $app_dir</pre>
+</div>
+</div>
+<div class="section" id="plugin-dir">
+<h3><tt class="docutils literal"><span class="pre">plugin_dir</span></tt><a class="headerlink" href="#plugin-dir" title="Permalink to this headline">¶</a></h3>
+<p><em>The plugin directory</em></p>
+<p>Plugins may use this variable to reference files provided by the plugin itself
+(e.g. runtime libraries, control script templates, etc.) For example, to copy a
+file name <tt class="docutils literal"><span class="pre">mylib.jar</span></tt> to the application &#8220;lib&#8221; subdirectory, a plugin can
+execute:</p>
+<div class="highlight-python"><pre>cp $plugin_dir/mylib.jar $app_dir/lib</pre>
+</div>
+</div>
+<div class="section" id="genapp-dir">
+<h3><tt class="docutils literal"><span class="pre">genapp_dir</span></tt><a class="headerlink" href="#genapp-dir" title="Permalink to this headline">¶</a></h3>
+<p><em>The genapp subdirectory located within the application directory</em></p>
+<p>This variable is equivalent to <tt class="docutils literal"><span class="pre">$app_dir/.genapp</span></tt>.</p>
+<p>Plugins may use this variable to reference files located in the genapp
+subdirectory. These may be files created by other plugins that have already
+performed their setup operations or files that the plugin itself creates.</p>
+</div>
+<div class="section" id="control-dir">
+<h3><tt class="docutils literal"><span class="pre">control_dir</span></tt><a class="headerlink" href="#control-dir" title="Permalink to this headline">¶</a></h3>
+<p><em>The control subdirectory located within the genapp directory</em></p>
+<p>This variable is equivalent to <tt class="docutils literal"><span class="pre">$genapp_dir/control</span></tt>.</p>
+<p>Plugins may use this variable when creating control scripts or control script
+configuration files. For example, the start script that must be created by one
+of the plugins is <tt class="docutils literal"><span class="pre">$control_dir/start</span></tt>.</p>
+</div>
+<div class="section" id="log-dir">
+<h3><tt class="docutils literal"><span class="pre">log_dir</span></tt><a class="headerlink" href="#log-dir" title="Permalink to this headline">¶</a></h3>
+<p><em>The conventional location for application logs</em></p>
+<p>This variable is equivalent to <tt class="docutils literal"><span class="pre">$genapp_dir/log</span></tt>.</p>
+<p>genapp doesn&#8217;t assume any particular logging functionality for application, but
+does provide an empty <tt class="docutils literal"><span class="pre">log</span></tt> directory, located within the genapp directory,
+where log files may be created.</p>
+</div>
+<div class="section" id="app-id">
+<h3><tt class="docutils literal"><span class="pre">app_id</span></tt><a class="headerlink" href="#app-id" title="Permalink to this headline">¶</a></h3>
+<p><em>The unique ID of the application being deployed</em></p>
+<p>Plugins may use this variable to reference the application ID. This might be
+useful as start script configuration data if the application needs to be
+uniquely identified on the system.</p>
+</div>
+<div class="section" id="app-user">
+<h3><tt class="docutils literal"><span class="pre">app_user</span></tt><a class="headerlink" href="#app-user" title="Permalink to this headline">¶</a></h3>
+<p><em>The user associated with the application being deployed</em></p>
+<p>If genapp is not run in &#8220;dev&#8221; mode, it will create a unique user for each
+deployed application and setup appropriate user permissions for the
+application. Plugins may use this variable to reference that user.</p>
+<p>If genapp is run in dev mode, <tt class="docutils literal"><span class="pre">app_user</span></tt> is the same as the user running
+genapp.</p>
+</div>
+<div class="section" id="app-port">
+<h3><tt class="docutils literal"><span class="pre">app_port</span></tt><a class="headerlink" href="#app-port" title="Permalink to this headline">¶</a></h3>
+<p><em>The genapp assigned port for the application</em></p>
+<p>If the application requires a port (the default behavior is that each
+application requires one port), plugins may reference the assigned port using
+this variable.</p>
+<p>Once reserved, a port will not be assigned to another application.</p>
+<p>This value is typically used to configure servers to listen to the reserved
+port.</p>
+</div>
+<div class="section" id="application-metadata">
+<h3>Application Metadata<a class="headerlink" href="#application-metadata" title="Permalink to this headline">¶</a></h3>
+<p>In addition to the variables above, genapp makes all attributes defined in the
+application metadata available to plugins during setup.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The &#8220;app&#8221; section is not provided as environment variables.</p>
+</div>
+<p>Metadata variables are named using the following convention:</p>
+<blockquote>
+<div><em>SECTION_NAME</em> + &#8216;_&#8217; + <em>ATTR_NAME</em></div></blockquote>
+<p><em>SECTION_NAME</em> is the section name (e.g. &#8220;env&#8221;, &#8220;java&#8221;, etc.)</p>
+<p><em>TRANSFORMED_ATTR_NAME</em> is the attribute name.</p>
+<p>When naming metadata as environment variables, genapp replaces any character
+that is not a number, a letter, or an underscore with an underscore.</p>
+<p>The following application metadata:</p>
+<div class="highlight-python"><pre>{
+    &quot;java&quot;: {
+        &quot;class&quot;: &quot;MyClass&quot;,
+        &quot;args&quot;: &quot;Hello&quot;
+    }
+
+    &quot;logging&quot;: {
+        &quot;file&quot;: &quot;server.log&quot;
+    }
+}</pre>
+</div>
+<p>will result in the following environment variables:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">java_class</span><span class="o">=</span><span class="n">MyClass</span>
+<span class="n">java_args</span><span class="o">=</span><span class="n">Hello</span>
+<span class="n">logging_file</span><span class="o">=</span><span class="n">server</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">genapp will force all environment names to be lower case, regardless of
+their case in the application metadata. As environment variables are case
+sensitive, plugins must reference them using all lower case names.</p>
+</div>
+</div>
+</div>
+<div class="section" id="installing-a-plugin">
+<h2>Installing a Plugin<a class="headerlink" href="#installing-a-plugin" title="Permalink to this headline">¶</a></h2>
+<p>Installed plugins must be located within the <tt class="docutils literal"><span class="pre">plugins_home</span></tt> directory that is
+specified in the genapp configuration (<a class="reference internal" href="quickstart.html"><em>Quick Start</em></a> for information on
+configuring genapp).</p>
+<p>Plugin directories may be symlinked to the plugins home location rather than
+copied.</p>
+</div>
+<div class="section" id="local-plugins">
+<h2>Local Plugins<a class="headerlink" href="#local-plugins" title="Permalink to this headline">¶</a></h2>
+<p>A local plugin is a plugin directory that is available on a local file
+system. A local plugin does not have to be installed.</p>
+<p>Local plugins are used for development purposes and are generally not used in
+production. They are convenient when making changes to a plugin in an arbitrary
+location (e.g. in a source control managed directory).</p>
+<p>Local plugins are specified in application metadata using this syntax:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&quot;apps&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&quot;plugins&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s">&quot;src&quot;</span><span class="p">:</span> <span class="s">&quot;local_plugin://PLUGIN_DIR&quot;</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">PLUGIN_DIR</span></tt> is the location of the plugin.</p>
+</div>
+<div class="section" id="remote-plugins">
+<h2>Remote Plugins<a class="headerlink" href="#remote-plugins" title="Permalink to this headline">¶</a></h2>
+<p>Remote plugins are XXX.</p>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="metadata.html">Application Metadata</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="directories.html">Deployed Directory Structure</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2012, CloudBees.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

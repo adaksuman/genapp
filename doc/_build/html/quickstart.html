@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Quick Start &mdash; genapp 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="genapp 0.1 documentation" href="index.html" />
+    <link rel="next" title="Application Metadata" href="metadata.html" />
+    <link rel="prev" title="Getting the Code" href="code.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="index.html">
+          <span>genapp 0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>Quick Start</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="code.html">Getting the Code</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="metadata.html">Application Metadata</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="quick-start">
+<h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
+<p>genapp is used to manage the lifecycle of user applications deployed to a
+server. For background on genapp, see <a class="reference internal" href="overview.html"><em>Overview</em></a>.</p>
+<p>Before proceeding, refer to <a class="reference internal" href="requirements.html"><em>Requirements</em></a> for the list of software you
+need to use genapp.</p>
+<p>The instructions below use two symbols to designate the type of shell you
+should type a command into:</p>
+<dl class="docutils">
+<dt><em>$</em></dt>
+<dd>When you see a command that starts with <em>$</em> type that command (not
+including <em>$</em>) into a terminal shell.</dd>
+<dt><em>&gt;</em></dt>
+<dd>When you see a command that starts with <em>&gt;</em> type that command (again, not
+including the <em>&gt;</em>) into the genapp shell. See <a class="reference internal" href="#run-genapp"><em>Run genapp</em></a> below for
+instructions on starting the genapp shell.</dd>
+</dl>
+<div class="section" id="get-the-code">
+<h2>Get the Code<a class="headerlink" href="#get-the-code" title="Permalink to this headline">¶</a></h2>
+<p>Use git to checkout genapp:</p>
+<div class="highlight-python"><pre>$ git clone git@github.com:cloudbees/genapp.git</pre>
+</div>
+<p>To troubleshoot problems, refer to <a class="reference internal" href="code.html"><em>Getting the Code</em></a>.</p>
+</div>
+<div class="section" id="compile-genapp">
+<h2>Compile genapp<a class="headerlink" href="#compile-genapp" title="Permalink to this headline">¶</a></h2>
+<p>Compile genapp using <tt class="docutils literal"><span class="pre">make</span></tt>:</p>
+<div class="highlight-python"><pre>$ cd genapp
+$ make</pre>
+</div>
+<p>This will download any additional software used by genapp and compile the
+Erlang application.</p>
+</div>
+<div class="section" id="configure-genapp">
+<h2>Configure genapp<a class="headerlink" href="#configure-genapp" title="Permalink to this headline">¶</a></h2>
+<p>genapp uses a single configuration file to specify the directories and other
+settings it needs.</p>
+<p>Create a development config file by copying the template provided by genapp:</p>
+<div class="highlight-python"><pre>$ cp priv/dev.config.in priv/dev.config</pre>
+</div>
+<p>The file must be <tt class="docutils literal"><span class="pre">priv/dev.config</span></tt> for genapp to find it.</p>
+<p>There are three settings that genapp uses:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">devmode</span></tt></dt>
+<dd>Indicates whether or not genapp is running in development mode. When testing
+genapp or developing plugins, set this value to <tt class="docutils literal"><span class="pre">true</span></tt>.</dd>
+<dt><tt class="docutils literal"><span class="pre">apps_home</span></tt></dt>
+<dd>Specifies the location where genapp will install user applications. Below
+you will create a directory that will be used for this value.</dd>
+<dt><tt class="docutils literal"><span class="pre">plugins_home</span></tt></dt>
+<dd>Specifies the location where genapp will find plugins. Below you will create
+a directory that will be used for this value.</dd>
+</dl>
+<p>Create directories for both genapp apps and plugins:</p>
+<div class="highlight-python"><pre>$ mkdir -p ~/genapp/{apps,plugins}</pre>
+</div>
+<p>Next, edit <tt class="docutils literal"><span class="pre">priv/dev.config</span></tt> and modify the three settings. Stripped of all
+comments (i.e. lines starting with &#8220;%&#8221;) the file should look like this:</p>
+<div class="highlight-python"><pre>[{genapp,
+  [
+   {devmode, true},
+   {apps_home, &quot;HOME_DIR/genapp/apps&quot;},
+   {plugins_home, &quot;HOME_DIR/genapp/plugins&quot;}
+]}].</pre>
+</div>
+<p>Where <tt class="docutils literal"><span class="pre">HOME_DIR</span></tt> is the full path to your home directory. Note that the
+symbol for user directory <tt class="docutils literal"><span class="pre">~</span></tt> will <em>not</em> be resolved by genapp &#8211; you must
+specify the full, absolute path to each location.</p>
+<p>At this point your genapp installation is configured. In the next step you&#8217;ll
+create an application you can deploy using genapp.</p>
+</div>
+<div class="section" id="create-an-application">
+<h2>Create an Application<a class="headerlink" href="#create-an-application" title="Permalink to this headline">¶</a></h2>
+<p>Applications are directories that contain a <tt class="docutils literal"><span class="pre">.genapp</span></tt> directory and
+application specific files such as source code, binaries, web content etc.</p>
+<p>In this example, we&#8217;ll deploy a simple HTTP app using a sample plugin provided
+with genapp.</p>
+<p>Create the application directory structure:</p>
+<div class="highlight-python"><pre>$ mkdir -p ~/genapp/sample-app/.genapp</pre>
+</div>
+<p>Create the file <tt class="docutils literal"><span class="pre">~/genapp/sample-app/.genapp/metadata.json</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&quot;app&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&quot;plugins&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;simple_html&quot;</span><span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This is the minimum required metadata for an application. It contains the list
+of plugins that will be used to setup the application. In this case, it uses a
+single plugin: <tt class="docutils literal"><span class="pre">simple_html</span></tt>. Later, we&#8217;ll install this plugin so it can be
+used by genapp.</p>
+<p>To complete the sample app, create the file
+<tt class="docutils literal"><span class="pre">~/genapp/sample-app/index.html</span></tt>:</p>
+<div class="highlight-python"><pre>&lt;html&gt;
+Welcome to genapp! Have a look at the &lt;a href=&quot;.genapp&quot;&gt;.genapp&lt;/a&gt;
+directory -- it contains a lot of interesting things!
+&lt;/html&gt;</pre>
+</div>
+<p>This file will be installed as the root HTML file when genapp deploys the
+application.</p>
+<p>Confirm your sample application structure is complete by typing the command:</p>
+<div class="highlight-python"><pre>$ find ~/genapp/sample-app | sort</pre>
+</div>
+<p>You should see this output:</p>
+<div class="highlight-python"><pre>~/genapp/sample-app/
+~/genapp/sample-app/.genapp
+~/genapp/sample-app/.genapp/metadata.json
+~/genapp/sample-app/index.html</pre>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">~</span></tt> is replaced by your home directory.</p>
+<p>In the next step, we&#8217;ll install <tt class="docutils literal"><span class="pre">simple_html</span></tt>, which is the plugin used to
+setup the application.</p>
+</div>
+<div class="section" id="install-a-plugin">
+<h2>Install a Plugin<a class="headerlink" href="#install-a-plugin" title="Permalink to this headline">¶</a></h2>
+<p>A plugin is a directory that contains a <tt class="docutils literal"><span class="pre">setup</span></tt> script and any other files
+potentiall needed by the plugin when setting up applications.</p>
+<p>The sample application created in the previous step uses a plugin named
+<tt class="docutils literal"><span class="pre">simple_html</span></tt>. This plugin is provided with genapp as a sample.</p>
+<p>Install <tt class="docutils literal"><span class="pre">simple_html</span></tt> by creating a symbolic link to its directory as
+follows:</p>
+<div class="highlight-python"><pre>$ ln -s GENAPP_REPO/examples/simple_html ~/genapp/plugins/simple_html</pre>
+</div>
+<p><tt class="docutils literal"><span class="pre">GENAPP_REPO</span></tt> must be the full path to your local genapp directory, created
+when you cloned the git repository earlier.</p>
+<p>The symbolic link to the plugin directory must be created in the
+<tt class="docutils literal"><span class="pre">plugins_home</span></tt> directory as specified in <tt class="docutils literal"><span class="pre">priv/dev.config</span></tt>.</p>
+<p>To confirm that the plugin is installed, run this command:</p>
+<div class="highlight-python"><pre>$ find -L ~/genapp/plugins | sort</pre>
+</div>
+<p>You should see the plugin directory and its setup file:</p>
+<div class="highlight-python"><pre>~/genapp/plugins/
+~/genapp/plugins/simple_http
+~/genapp/plugins/simple_html/setup</pre>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">~</span></tt> is replaced by your home directory.</p>
+</div>
+<div class="section" id="run-genapp">
+<span id="id1"></span><h2>Run genapp<a class="headerlink" href="#run-genapp" title="Permalink to this headline">¶</a></h2>
+<p>From the genapp repo directory (the top-level directory that was created when
+you cloned the genapp git repository), run the genapp shell:</p>
+<div class="highlight-python"><pre>$ make shell</pre>
+</div>
+<p>This starts a developer shell for genapp. You can type genapp commands into the
+shell to test operations.</p>
+<p>Test a command by typing the following command into the shell and pressing
+<tt class="docutils literal"><span class="pre">ENTER</span></tt>:</p>
+<div class="highlight-python"><pre>&gt; genapp:query_apps([]).</pre>
+</div>
+<p>Note that the command ends with a period &#8221;.&#8221; &#8211; all genapp commands issued in
+the shell should end with a period. Execute the command by pressing <tt class="docutils literal"><span class="pre">ENTER</span></tt>.</p>
+<p>You you see this result:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[]</span>
+</pre></div>
+</div>
+<p>This is an empty list, which indicates that there are no deployed applications.</p>
+<p>If you don&#8217;t see anything after pressing <tt class="docutils literal"><span class="pre">ENTER</span></tt>, verify that you&#8217;ve typed a
+period at the end of the command. If you forgot the period, type it and press
+<tt class="docutils literal"><span class="pre">ENTER</span></tt>.</p>
+<p>If you get a <tt class="docutils literal"><span class="pre">syntax</span> <span class="pre">error</span></tt>, check your command syntax and try again.</p>
+</div>
+<div class="section" id="deploy-an-application">
+<h2>Deploy an Application<a class="headerlink" href="#deploy-an-application" title="Permalink to this headline">¶</a></h2>
+<p>In the genapp shell, type the following command to deploy your sample
+application:</p>
+<div class="highlight-python"><pre>&gt; genapp:deploy(&quot;HOME_DIR/genapp/sample-app&quot;).</pre>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">HOME_DIR</span></tt> is the full path to your home directory. Note that genapp
+does not recognize <tt class="docutils literal"><span class="pre">~</span></tt> as your home directory &#8211; you must type the path
+explicitly.</p>
+<p>If the command was successful, you will see output that looks like this:</p>
+<div class="highlight-python"><pre>=INFO REPORT==== 19-Sep-2012::12:48:05 ===
+{plugin_setup_ok,{&lt;&lt;&quot;simple_html&quot;&gt;&gt;,&quot;c86e0d7c&quot;,[]}}</pre>
+</div>
+<p>genapp uses a randomly assigned application ID (<tt class="docutils literal"><span class="pre">c86e0d7c</span></tt> in the example
+above), so the output you see will be slightly different. Note the application
+ID for the deployed application &#8211; you&#8217;ll use it when running the application
+below.</p>
+<p>If you get an error, refer to <a class="reference internal" href="trouble.html"><em>Troubleshooting</em></a>.</p>
+<p>If the application was deployed successfully, it will appear in the list when
+you run <tt class="docutils literal"><span class="pre">query_apps</span></tt>:</p>
+<div class="highlight-python"><pre>&gt; genapp:query_apps([setup_status]).</pre>
+</div>
+<p>You should see a result similar to this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[{</span><span class="s">&quot;c86e0d7c&quot;</span><span class="p">,[{</span><span class="n">setup_status</span><span class="p">,</span><span class="n">ok</span><span class="p">}]}]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-an-application">
+<h2>Running an Application<a class="headerlink" href="#running-an-application" title="Permalink to this headline">¶</a></h2>
+<p>genapp is not responsible for running the application directly. A deployed
+genapp application may be started by calling its <tt class="docutils literal"><span class="pre">start</span></tt> script, but genapp
+itself will not do this.</p>
+<p>This separation of concerns is intentional &#8211; genapp only deploys the
+application, preparing it for start, stop, and monitoring by other frameworks.</p>
+<p>To run the sample application, execute its start script as follows:</p>
+<div class="highlight-python"><pre>$ ~/genapp/apps/APP_ID/.genapp/control/start</pre>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">APP_ID</span></tt> is the application ID displayed by genapp when the application
+was deployed.</p>
+<p>You should see output that looks like this:</p>
+<div class="highlight-python"><pre>Serving HTTP on 0.0.0.0 port 8265 ...</pre>
+</div>
+<p>The port displayed will be different in your case &#8211; genapp assigns ports
+randomly within a configurable range (by default the range is from 8000 to
+8999).</p>
+</div>
+<div class="section" id="test-the-application">
+<h2>Test the Application<a class="headerlink" href="#test-the-application" title="Permalink to this headline">¶</a></h2>
+<p>To test the running sample application, view the following URL in your
+browser:</p>
+<blockquote>
+<div><a class="reference external" href="http://localhost:PORT">http://localhost:PORT</a></div></blockquote>
+<p>where <tt class="docutils literal"><span class="pre">PORT</span></tt> is the port assigned to the application (this is displayed in
+the terminal shell when the application is started &#8211; see above).</p>
+<p>You should see a web page that says:</p>
+<blockquote>
+<div><em>Welcome to genapp! Have a look at the .genapp directory &#8211; it contains a lot
+of interesting things!</em></div></blockquote>
+<p>Click on the <em>.genapp</em> link &#8211; you&#8217;ll see all of the files that genapp created
+during setup.</p>
+<p>You also list these files from a terminal:</p>
+<div class="highlight-python"><pre>$ cd ~/genapp/apps/APP_ID
+$ find | sort</pre>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">APP_ID</span></tt> is the ID of the deployed application.</p>
+<p>You should see something like this:</p>
+<div class="highlight-python"><pre>./.genapp
+./.genapp/control
+./.genapp/control/env
+./.genapp/control/start
+./.genapp/log
+./.genapp/metadata.json
+./.genapp/ports
+./.genapp/ports/8024
+./.genapp/setup_status
+./.genapp/setup_status/ok
+./.genapp/setup_status/plugin_simple_html_0
+./index.html</pre>
+</div>
+<p>All of the application&#8217;s genapp related files are located within the
+<tt class="docutils literal"><span class="pre">.genapp</span></tt> subdirectory. The other files &#8211; in this case just <tt class="docutils literal"><span class="pre">index.html</span></tt>
+is located outside that directory.</p>
+<p>For details on the <tt class="docutils literal"><span class="pre">.genapp</span></tt> directory structure, see <a class="reference internal" href="directories.html"><em>Deployed Directory Structure</em></a>.</p>
+<p>genapp provides an interface for querying this structure &#8211; see
+<a class="reference internal" href="query_app.html"><em>Querying Applications</em></a>.</p>
+</div>
+<div class="section" id="undeploy-an-application">
+<h2>Undeploy an Application<a class="headerlink" href="#undeploy-an-application" title="Permalink to this headline">¶</a></h2>
+<p>Type the following command in the genapp shell:</p>
+<div class="highlight-python"><pre>&gt; genapp:undeploy(APP_ID).</pre>
+</div>
+<p>This will remove the application directory and cleanup and related resources.</p>
+<p>To undeploy an application, genapp simply deletes the application
+directory.</p>
+</div>
+<div class="section" id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<p>In this quick start guide, you stepped through the core genapp functionality:</p>
+<ul class="simple">
+<li>Download, compile and configure genapp</li>
+<li>Create a simple genapp application</li>
+<li>Deploy an application using genapp</li>
+<li>Run and test a genapp deployed application</li>
+<li>Undeploy an application using genapp</li>
+</ul>
+<p>Use the navigation bar below to view the next topic for a deeper dive into
+genapp.</p>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="code.html">Getting the Code</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="metadata.html">Application Metadata</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2012, CloudBees.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

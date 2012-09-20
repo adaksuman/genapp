@@ -1,0 +1,120 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Application Metadata &mdash; genapp 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="genapp 0.1 documentation" href="index.html" />
+    <link rel="next" title="Plugins" href="plugins.html" />
+    <link rel="prev" title="Quick Start" href="quickstart.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="index.html">
+          <span>genapp 0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>Application Metadata</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="quickstart.html">Quick Start</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="plugins.html">Plugins</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="application-metadata">
+<h1>Application Metadata<a class="headerlink" href="#application-metadata" title="Permalink to this headline">¶</a></h1>
+<p>Application metadata is defined in a file named <tt class="docutils literal"><span class="pre">metadata.json</span></tt> located in
+the <tt class="docutils literal"><span class="pre">.genapp</span></tt> subdirectory of an application.</p>
+<p>The metadata file contains sections of attributes. Section names are arbitrary
+with the exception of the <tt class="docutils literal"><span class="pre">app</span></tt> section, which is reserved for use by genapp.</p>
+<p>Pluins may use attributes from any section in the metadata. Some plugins may
+require specific sections and attribute names, which others may use sections
+and attribute names as optional values.</p>
+<p>Here&#8217;s a sample metadata file:</p>
+<div class="highlight-python"><pre>{
+    &quot;app&quot;: {
+        &quot;plugins&quot;: [&quot;java&quot;]
+    },
+
+    &quot;java&quot;: {
+        &quot;class&quot;: &quot;MyJavaClass&quot;,
+        &quot;args&quot;: &quot;arg1 &#x27;this is arg2&#x27;&quot;,
+        &quot;java_version&quot;: &quot;1.7&quot;
+    }
+
+    &quot;env&quot;: {
+        &quot;msg&quot;: &quot;This is the &#x27;msg&#x27; environment variable&quot;
+    }
+}</pre>
+</div>
+<p>Each section has a specific purpose:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">app</span></tt></dt>
+<dd>The <tt class="docutils literal"><span class="pre">app</span></tt> section contains genapp specific settings. It must contain a
+<tt class="docutils literal"><span class="pre">plugins</span></tt> list containing at least one plugin. Plugins are used to perform
+setup operations for an application. The &#8220;app&#8221; section name is reserved for
+use by genapp.</dd>
+<dt><tt class="docutils literal"><span class="pre">java</span></tt></dt>
+<dd>This section provides attributes for java related plugins. The section name
+is not enforced by genapp &#8211; plugins are free to use any unreserved section
+name as they see fit.</dd>
+<dt><tt class="docutils literal"><span class="pre">env</span></tt></dt>
+<dd>The env section contains environment variables that may be used by the
+application. genapp installs <tt class="docutils literal"><span class="pre">.genapp/control/env</span></tt> which can be sourced by
+application control scripts to recreate the environment defined in the
+metadata.</dd>
+</dl>
+<p>genapp copies the application metadata to <tt class="docutils literal"><span class="pre">.genapp/metadata</span></tt> during
+deployment. This copy serves as a reference of the metadata and is not
+otherwise used by genapp.</p>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="quickstart.html">Quick Start</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="plugins.html">Plugins</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2012, CloudBees.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

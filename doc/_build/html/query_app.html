@@ -1,0 +1,111 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Querying Applications &mdash; genapp 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="genapp 0.1 documentation" href="index.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="index.html">
+          <span>genapp 0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>Querying Applications</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="querying-applications">
+<h1>Querying Applications<a class="headerlink" href="#querying-applications" title="Permalink to this headline">¶</a></h1>
+<p>genapp provides an interface for querying application data.</p>
+<p>In a shell, use the command <tt class="docutils literal"><span class="pre">genapp:query_app</span></tt>. Here&#8217;s an example that
+queries an application&#8217;s setup status and setup logs:</p>
+<div class="highlight-python"><pre>&gt; genapp:query_app(&quot;f2145747&quot;, [ports, setup_status, setup_logs]).
+{ok,[{setup_logs,[{&quot;simple_html&quot;,{ok,&lt;&lt;&gt;&gt;}}]},
+ {setup_status,ok},
+ {ports,[8822]}]}</pre>
+</div>
+<p>The following options may be specified to the <tt class="docutils literal"><span class="pre">query_app</span></tt> command:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">ports</span></tt></dt>
+<dd>Includes a list of ports reserved for the application.</dd>
+<dt><tt class="docutils literal"><span class="pre">metadata</span></tt></dt>
+<dd>Includes the application metadata.</dd>
+<dt><tt class="docutils literal"><span class="pre">setup_status</span></tt></dt>
+<dd>Includes the application setup status. Refer to <a class="reference internal" href="#setup-status"><em>Setup Status</em></a> below for
+possible values.</dd>
+<dt><tt class="docutils literal"><span class="pre">setup_logs</span></tt></dt>
+<dd>Includes the setup result and output for each plugin that has completed its
+setup, successfully or not. Note that the setup is abandoned after the first
+plugin setup failure, so the setup logs may not contain logs for every
+plugin.</dd>
+<dt><tt class="docutils literal"><span class="pre">{log_tail,</span> <span class="pre">N}</span></tt></dt>
+<dd>Includes the last <tt class="docutils literal"><span class="pre">N</span></tt> bytes of <tt class="docutils literal"><span class="pre">.genapp/log/current</span></tt>.</dd>
+<dt><em>Filename</em></dt>
+<dd>Any other value is considered a file name and will be used to read and return
+the contents of a file located in <tt class="docutils literal"><span class="pre">.genapp</span></tt>. This can be used to query
+values written by plugins during setup.</dd>
+</dl>
+<div class="section" id="setup-status">
+<span id="id1"></span><h2>Setup Status<a class="headerlink" href="#setup-status" title="Permalink to this headline">¶</a></h2>
+<p>When querying an application&#8217;s setup status, you will see one of the following
+possible values:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">ok</span></tt></dt>
+<dd>Each of the plugins completed its setup without errors.</dd>
+<dt><tt class="docutils literal"><span class="pre">error</span></tt></dt>
+<dd>A plung setup failed. Refer to the setup logs for the plugins for error
+details.</dd>
+<dt><tt class="docutils literal"><span class="pre">pending</span></tt></dt>
+<dd>A setup is pending. Plugins that have completed setup will have setup logs.</dd>
+<dt><tt class="docutils literal"><span class="pre">unkown</span></tt></dt>
+<dd>The setup status is unknown.</dd>
+</dl>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2012, CloudBees.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -2,4 +2,4 @@ ebin
 deps
 erl_crash.dump
 priv/*.config
-doc/_build
+doc/_build/doctrees

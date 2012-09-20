@@ -1,5 +1,18 @@
 # Overview
 
+**NOTE**: This documentation is deprecated and may be out of date.
+
+To get the current documentation:
+
+    $ clone https://github.com/cloudbees/genapp
+
+and open genapp/doc/_build/html/index.html in your browser.
+
+The documentation that follows will be retained for a period of time for
+reference until the other documentation is finalized.
+
+---
+
 genapp is a light weight framework for deploying and managing applications.
 
 # Production Requirements
