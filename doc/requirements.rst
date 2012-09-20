@@ -9,9 +9,14 @@ need the following software installed:
   Erlang that's available for your system doesn't work, please :doc:`concact
   CloudBees <contact>` with the details and we'll help you resolve them.
 
+**curl**
+  genapp uses the command line tool ``curl`` to download remote plugins. If you
+  want to test genapp's remote plugin functionality, you'll need curl
+  installed and available on the path.
+
 **make**
-  genapp requires that ``make`` is installed to build the source code. This is
-  usually provided by the system package of the same name.
+  genapp uses ``make`` for building source code. This is usually provided by
+  the system package of the same name.
 
 **python** (optional for quick start example)
   If you follow the :doc:`quick start <quickstart>` example, you'll need Python

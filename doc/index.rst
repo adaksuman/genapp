@@ -8,10 +8,12 @@ genapp is a light weight framework for deploying and managing applications.
 
    overview
    requirements
-   quickstart
    code
+   quickstart
    metadata
    plugins
+   directories
+   trouble
    contact
 
 Indices and tables
@@ -19,4 +21,3 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`search`
-

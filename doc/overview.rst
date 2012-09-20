@@ -14,7 +14,7 @@ genapp handles:
 - Application deployment by way of plugins
 - Application undeployment
 
-genapp does NOT handle:
+genapp does *not* handle:
 
 - Application packaging
 - Application package deployment
@@ -34,9 +34,7 @@ which defines the list of plugins used to setup the
 application. ``metadata.json`` contains metadata sections, which provide
 attributes to the plugins during setup.
 
-.. toctree::
-
-   metadata
+For more information, see :doc:`metadata`.
 
 Plugins
 -------
@@ -48,6 +46,4 @@ Plugins are used in the order they're specified in the plugins list. Each
 plugin is called upon to perform setup operations for the application. If the
 deployment is successful, the application will be ready to run.
 
-.. toctree::
-
-   plugins
+For more information, see :doc:`plugins`.
