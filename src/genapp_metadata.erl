@@ -9,7 +9,11 @@
          flatten/1]).
 
 parse(Bin) when is_binary(Bin) ->
-    jiffy:decode(Bin).
+    try
+        jiffy:decode(Bin)
+    catch
+        throw:{error, Err} -> error({json_error, Err})
+    end.
 
 parse_file(File) ->
     handle_read_file(file:read_file(File), File).
