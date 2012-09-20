@@ -4,7 +4,7 @@
 
 To get the current documentation:
 
-    $ clone https://github.com/cloudbees/genapp
+    $ clone git@github.com:cloudbees/genapp.git
 
 and open genapp/doc/_build/html/index.html in your browser.
 
