@@ -47,7 +47,7 @@ handle_optional_env(undefined, Default) -> Default.
 
 priv_dir() ->
     Ebin = filename:dirname(code:which(?MODULE)),
-    filename:join(filename:dirname(Ebin), "priv").
+    genapp_util:filename_join(filename:dirname(Ebin), "priv").
 
 mode() ->
     handle_devmode_env(genapp:get_env(devmode, false)).

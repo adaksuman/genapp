@@ -36,7 +36,8 @@ delete_old_remote_plugins() ->
 
 list_remote_plugins() ->
     filelib:wildcard(
-      filename:join(temp_dir(), ?REMOTE_PLUGIN_TEMP_PREFIX ++ "*")).
+      genapp_util:filename_join(
+        temp_dir(), ?REMOTE_PLUGIN_TEMP_PREFIX ++ "*")).
 
 filter_old_remote_plugins(Dirs) ->
     Cutoff = old_remote_plugin_cutoff(),

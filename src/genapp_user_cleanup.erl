@@ -53,7 +53,7 @@ orphaned_users(Users, State) ->
     lists:filter(fun(User) -> app_dir_missing(User, State) end, Users).
 
 app_dir_missing("app_" ++ ResId, #state{apps_home=AppsHome}) ->
-    not filelib:is_dir(filename:join(AppsHome, ResId)).
+    not filelib:is_dir(genapp_util:filename_join(AppsHome, ResId)).
 
 delete_users([]) -> ok;
 delete_users(Users) ->

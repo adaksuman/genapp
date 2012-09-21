@@ -36,7 +36,7 @@ new_app(PkgDir, Options) ->
     #app{id=app_id_option(Options), meta=Meta, pkg_dir=PkgDir}.
 
 metadata_file(PkgDir) ->
-    filename:join([PkgDir, ?GENAPP_SUBDIR, ?GENAPP_METADATA_FILE]).
+    genapp_util:filename_join([PkgDir, ?GENAPP_SUBDIR, ?GENAPP_METADATA_FILE]).
 
 app_id_option(Options) ->
     proplists:get_value(id, Options).
@@ -252,7 +252,8 @@ make_temp_plugin_dir(Zip) ->
     make_dir(temp_plugin_dir(Zip)).
 
 temp_plugin_dir(Zip) ->
-    filename:join(filename:dirname(Zip), filename:basename(Zip, ".zip")).
+    genapp_util:filename_join(
+      filename:dirname(Zip), filename:basename(Zip, ".zip")).
 
 handle_temp_plugin_unzip(ok, Dir) -> {ok, Dir};
 handle_temp_plugin_unzip({error, Err}, _Dir) -> {error, Err}.
@@ -301,25 +302,26 @@ write_app_metadata(#state{app=App}=State) ->
     State.
 
 app_metadata_file(App) ->
-    filename:join(genapp_dir:root(App), ?GENAPP_METADATA_FILE).
+    genapp_util:filename_join(genapp_dir:root(App), ?GENAPP_METADATA_FILE).
 
 write_metadata(#app{meta=Meta}, File) ->
     ok = file:write_file(File, jiffy:encode(Meta)).
 
 make_subdirs(_Dir, []) -> ok;
 make_subdirs(Dir, [SubDir|Rest]) ->
-    ok = file:make_dir(filename:join(Dir, SubDir)),
+    ok = file:make_dir(genapp_util:filename_join(Dir, SubDir)),
     make_subdirs(Dir, Rest).
 
 write_app_setup_script(#state{app=App}=State) ->
-    Src = filename:join([genapp:priv_dir(), "scripts", "plugin_setup_app"]),
+    Src = genapp_util:filename_join(
+            [genapp:priv_dir(), "scripts", "plugin_setup_app"]),
     Dest = plugin_app_setup_script(App),
     {ok, _} = file:copy(Src, Dest),
     ok = file:change_mode(Dest, 8#00755),
     State.
 
 plugin_app_setup_script(#app{dir=Dir}) ->
-    filename:join(Dir, "setup").
+    genapp_util:filename_join(Dir, "setup").
 
 %%%===================================================================
 %%% Create app user
@@ -363,7 +365,7 @@ write_env(#state{app=App}=State) ->
     State.
 
 genapp_env_file(App) ->
-    filename:join(
+    genapp_util:filename_join(
       genapp_dir:subdir(App, ?GENAPP_CONTROL_SUBDIR),
       ?GENAPP_ENV_FILE).
 
@@ -464,8 +466,8 @@ set_dir_readonly(Dir) ->
 
 set_subdirs_group_writeable(_Dir, []) -> ok;
 set_subdirs_group_writeable(Dir, [Subdir|Rest]) ->
-    {0, ""} = genapp_cmd:run(
-                "chmod", ["-R", "g+w", filename:join(Dir, Subdir)]),
+    Path = genapp_util:filename_join(Dir, Subdir),
+    {0, ""} = genapp_cmd:run("chmod", ["-R", "g+w", Path]),
     set_subdirs_group_writeable(Dir, Rest).
 
 delete_app_startup_script(State) ->
@@ -492,7 +494,7 @@ check_status_delete(ok) -> ok;
 check_status_delete({error, enoent}) -> ok.
 
 status_file(Status, App) ->
-    filename:join(
+    genapp_util:filename_join(
       genapp_dir:subdir(App, ?GENAPP_SETUP_STATUS_SUBDIR),
       atom_to_list(Status)).
 
@@ -503,7 +505,7 @@ plugin_setup_result(Plugin, Exit, Out, App) ->
     ok = file:write_file(plugin_setup_result_file(Plugin, Exit, App), Out).
 
 plugin_setup_result_file(Plugin, Exit, App) ->
-    filename:join(
+    genapp_util:filename_join(
       genapp_dir:subdir(App, ?GENAPP_SETUP_STATUS_SUBDIR),
       plugin_setup_result_name(Plugin, Exit)).
 
@@ -538,7 +540,7 @@ handle_make_dir({error, Err}, Dir) ->
     exit({make_dir_error, Err, Dir}).
 
 unzip(Zip, IntoDir) ->
-    RelZip = filename:join("..", Zip),
+    RelZip = genapp_util:filename_join("..", Zip),
     handle_unzip_result(
       genapp_cmd:run(
         "unzip", ["-qn", RelZip], [{cd, IntoDir}],

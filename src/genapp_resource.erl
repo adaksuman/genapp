@@ -140,7 +140,7 @@ handle_msg({app_exists, Id}, _From, State) ->
 %%%===================================================================
 
 new_app_dir(Id, #state{home=Home}) ->
-    AppDir = filename:join(Home, Id),
+    AppDir = genapp_util:filename_join(Home, Id),
     handle_app_dir_create(file:make_dir(AppDir), {Id, AppDir}).
 
 handle_app_dir_create(ok, {Id, AppDir}) -> {Id, AppDir};
@@ -153,7 +153,7 @@ new_app_dir(#state{home=Home}) ->
 try_new_app_dir(_Home, 0) -> exit(too_many_create_app_dir_attempts);
 try_new_app_dir(Home, Attempts) ->
     Id = new_app_id(),
-    AppDir = filename:join(Home, Id),
+    AppDir = genapp_util:filename_join(Home, Id),
     handle_app_dir_attempt(
       file:make_dir(AppDir), {Id, AppDir}, Home, Attempts).
 
@@ -255,8 +255,9 @@ write_ports(Ports, AppDir) ->
     lists:foreach(fun(Port) -> write_port(Port, AppDir) end, Ports).
 
 write_port(Port, AppDir) ->
-    File = filename:join([AppDir, ?GENAPP_SUBDIR, ?GENAPP_PORTS_SUBDIR,
-                          integer_to_list(Port)]),
+    File = genapp_util:filename_join(
+             [AppDir, ?GENAPP_SUBDIR, ?GENAPP_PORTS_SUBDIR,
+              integer_to_list(Port)]),
     ok = filelib:ensure_dir(File),
     ok = file:write_file(File, <<>>).
 
@@ -306,7 +307,7 @@ app_ports(AppDir) ->
     handle_ports_dir_list(file:list_dir(ports_dir(AppDir)), []).
 
 ports_dir(AppDir) ->
-    filename:join([AppDir, ?GENAPP_SUBDIR, ?GENAPP_PORTS_SUBDIR]).
+    genapp_util:filename_join([AppDir, ?GENAPP_SUBDIR, ?GENAPP_PORTS_SUBDIR]).
 
 handle_ports_dir_list({ok, Dirs}, Ports) ->
     lists:foldl(
@@ -329,7 +330,7 @@ app_metadata(AppDir) ->
     handle_read_app_metadata(file:read_file(MetaFile)).
 
 app_metadata_file(AppDir) ->
-    filename:join([AppDir, ?GENAPP_SUBDIR, ?GENAPP_METADATA_FILE]).
+    genapp_util:filename_join([AppDir, ?GENAPP_SUBDIR, ?GENAPP_METADATA_FILE]).
 
 handle_read_app_metadata({ok, Bin}) -> Bin;
 handle_read_app_metadata({error, Err}) -> {error, Err}.
@@ -345,7 +346,8 @@ app_setup_logs(AppDir) ->
     read_setup_logs(plugin_setup_log_files(AppDir)).
 
 setup_status_dir(AppDir) ->
-    filename:join([AppDir, ?GENAPP_SUBDIR, ?GENAPP_SETUP_STATUS_SUBDIR]).
+    genapp_util:filename_join(
+      [AppDir, ?GENAPP_SUBDIR, ?GENAPP_SETUP_STATUS_SUBDIR]).
 
 app_setup_status(_Dir, []) -> unknown;
 app_setup_status(Dir, [Status|Rest]) ->
@@ -354,14 +356,15 @@ app_setup_status(Dir, [Status|Rest]) ->
       Status, Dir, Rest).
 
 setup_status_file(Dir, Status) ->
-    filename:join(Dir, atom_to_list(Status)).
+    genapp_util:filename_join(Dir, atom_to_list(Status)).
 
 handle_check_setup_status(true, Status, _Dir, _Rest) -> Status;
 handle_check_setup_status(false, _Status, Dir, Rest) ->
     app_setup_status(Dir, Rest).
 
 plugin_setup_log_files(AppDir) ->
-    filelib:wildcard(filename:join(setup_status_dir(AppDir), "plugin_*")).
+    Pattern = genapp_util:filename_join(setup_status_dir(AppDir), "plugin_*"),
+    filelib:wildcard(Pattern).
 
 read_setup_logs(Logs) ->
     read_setup_logs_acc(Logs, []).
@@ -418,7 +421,8 @@ log_tail(AppDir, Bytes) ->
     tail(current_log(AppDir), Bytes).
 
 current_log(AppDir) ->
-    filename:join([AppDir, ?GENAPP_SUBDIR, ?GENAPP_LOG_SUBDIR, "current"]).
+    genapp_util:filename_join(
+      [AppDir, ?GENAPP_SUBDIR, ?GENAPP_LOG_SUBDIR, "current"]).
 
 tail(File, Bytes) when is_integer(Bytes), Bytes >= 0 ->
     handle_tail_result(
@@ -439,7 +443,7 @@ meta_file(Dir, MetaFile) ->
     read_meta_file(meta_file_name(Dir, MetaFile)).
 
 meta_file_name(AppDir, MetaFile) ->
-    filename:join([AppDir, ?GENAPP_SUBDIR, MetaFile]).
+    genapp_util:filename_join([AppDir, ?GENAPP_SUBDIR, MetaFile]).
 
 read_meta_file(File) ->
     handle_meta_file_read(file:read_file(File)).
@@ -456,11 +460,11 @@ app_exists(AppId, State) ->
     filelib:is_dir(app_dir(AppId, State)).
 
 app_dir(AppId, #state{home=Home}) ->
-    filename:join(Home, AppId).
+    genapp_util:filename_join(Home, AppId).
 
 app_dirs(#state{home=Home}) ->
     {ok, Apps} = file:list_dir(Home),
-    [{Id, filename:join(Home, Id)} || Id <- Apps].
+    [{Id, genapp_util:filename_join(Home, Id)} || Id <- Apps].
 
 check_app_dir(AppId, State) ->
     AppDir = app_dir(AppId, State),

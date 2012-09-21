@@ -44,14 +44,14 @@ run_script(devmode, Script, _User, Options, Timeout) ->
 %%%===================================================================
 
 plugin_dir(Name) ->
-    filename:join(plugins_home(), Name).
+    genapp_util:filename_join(plugins_home(), Name).
 
 plugins_home() ->
     genapp:get_env(plugins_home, ?DEFAULT_PLUGINS_HOME).
 
 app_setup_script(#app{dir=Dir}) ->
     %% The "setup" script must exist in Dir as a pre-req for this call.
-    filename:join(Dir, "setup").
+    genapp_util:filename_join(Dir, "setup").
 
 %%%===================================================================
 %%% Plugin setup env
@@ -136,7 +136,8 @@ read_extra_metadata(PkgDir) ->
     maybe_read_metadata(filelib:is_file(ExtraFile), ExtraFile).
 
 extra_metadata_file(PkgDir) ->
-    filename:join([PkgDir, ?GENAPP_SUBDIR, ?GENAPP_METADATA_EXTRA_FILE]).
+    genapp_util:filename_join(
+      [PkgDir, ?GENAPP_SUBDIR, ?GENAPP_METADATA_EXTRA_FILE]).
 
 maybe_read_metadata(true, File) ->
     genapp_metadata:parse_file(File);
