@@ -38,4 +38,5 @@ filename_join(Ps) ->
     filename:join([to_list(P) || P <- Ps]).
 
 to_list(S) when is_list(S) -> S;
-to_list(B) when is_binary(B) -> binary_to_list(B).
+to_list(B) when is_binary(B) -> binary_to_list(B);
+to_list(A) when is_atom(A) -> atom_to_list(A).

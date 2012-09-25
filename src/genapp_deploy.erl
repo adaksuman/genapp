@@ -450,9 +450,9 @@ handle_plugin_setup_app({N, Err}, Plugin, #state{app=App}=State) ->
 
 post_setup(#state{app=App}=State) ->
     post_setup_set_owner(genapp:mode(), App),
-    GenStateDir = genapp_dir:root(App),
-    set_dir_readonly(GenStateDir),
-    set_subdirs_group_writeable(GenStateDir, [?GENAPP_LOG_SUBDIR]),
+    GenAppDir = genapp_dir:root(App),
+    set_dir_readonly(GenAppDir),
+    set_subdirs_group_writeable(GenAppDir, [?GENAPP_LOG_SUBDIR]),
     delete_app_startup_script(App),
     State.
 
