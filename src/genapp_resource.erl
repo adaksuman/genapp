@@ -313,7 +313,8 @@ handle_ports_dir_list({ok, Dirs}, Ports) ->
     lists:foldl(
       fun(PortStr, Acc) -> add_port_as_int(PortStr, Acc) end,
       Ports, Dirs);
-handle_ports_dir_list({error, enoent}, Ports) -> Ports.
+handle_ports_dir_list({error, enoent}, Ports) -> Ports;
+handle_ports_dir_list({error, enotdir}, Ports) -> Ports.
 
 add_port_as_int(PortStr, Ports) ->
     handle_port_to_int(catch(list_to_integer(PortStr)), Ports).
