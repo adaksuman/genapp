@@ -9,6 +9,12 @@ need the following software installed:
   Erlang that's available for your system doesn't work, please :doc:`concact
   CloudBees <contact>` with the details and we'll help you resolve them.
 
+.. note::
+
+  If you are installing Erlang on Ubuntu or Debian using ``apt-get``, you need
+  to install the ``erlang-dev`` package, which includes the tools needed to
+  build genapp.
+
 **curl**
   genapp uses the command line tool ``curl`` to download remote plugins. If you
   want to test genapp's remote plugin functionality, you'll need curl
