@@ -103,13 +103,13 @@ Create the file ``~/genapp/sample-app/.genapp/metadata.json``::
 
    {
      "app": {
-       "plugins": ["simple_html"]
+       "plugins": ["simple_http"]
      }
    }
 
 This is the minimum required metadata for an application. It contains the list
 of plugins that will be used to setup the application. In this case, it uses a
-single plugin: ``simple_html``. Later, we'll install this plugin so it can be
+single plugin: ``simple_http``. Later, we'll install this plugin so it can be
 used by genapp.
 
 To complete the sample app, create the file
@@ -136,7 +136,7 @@ You should see this output::
 
 where ``~`` is replaced by your home directory.
 
-In the next step, we'll install ``simple_html``, which is the plugin used to
+In the next step, we'll install ``simple_http``, which is the plugin used to
 setup the application.
 
 Install a Plugin
@@ -146,12 +146,12 @@ A plugin is a directory that contains a ``setup`` script and any other files
 potentiall needed by the plugin when setting up applications.
 
 The sample application created in the previous step uses a plugin named
-``simple_html``. This plugin is provided with genapp as a sample.
+``simple_http``. This plugin is provided with genapp as a sample.
 
-Install ``simple_html`` by creating a symbolic link to its directory as
+Install ``simple_http`` by creating a symbolic link to its directory as
 follows::
 
-   $ ln -s GENAPP_REPO/examples/simple_html ~/genapp/plugins/simple_html
+   $ ln -s GENAPP_REPO/examples/simple_http ~/genapp/plugins/simple_http
 
 ``GENAPP_REPO`` must be the full path to your local genapp directory, created
 when you cloned the git repository earlier.
@@ -167,7 +167,7 @@ You should see the plugin directory and its setup file::
 
     ~/genapp/plugins/
     ~/genapp/plugins/simple_http
-    ~/genapp/plugins/simple_html/setup
+    ~/genapp/plugins/simple_http/setup
 
 where ``~`` is replaced by your home directory.
 
@@ -219,7 +219,7 @@ explicitly.
 If the command was successful, you will see output that looks like this::
 
     =INFO REPORT==== 19-Sep-2012::12:48:05 ===
-    {plugin_setup_ok,{<<"simple_html">>,"c86e0d7c",[]}}
+    {plugin_setup_ok,{<<"simple_http">>,"c86e0d7c",[]}}
 
 genapp uses a randomly assigned application ID (``c86e0d7c`` in the example
 above), so the output you see will be slightly different. Note the application
@@ -300,7 +300,7 @@ You should see something like this::
     ./.genapp/ports/8024
     ./.genapp/setup_status
     ./.genapp/setup_status/ok
-    ./.genapp/setup_status/plugin_simple_html_0
+    ./.genapp/setup_status/plugin_simple_http_0
     ./index.html
 
 All of the application's genapp related files are located within the

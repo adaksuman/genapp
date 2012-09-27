@@ -133,14 +133,14 @@ with genapp.</p>
 <p>Create the file <tt class="docutils literal"><span class="pre">~/genapp/sample-app/.genapp/metadata.json</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
   <span class="s">&quot;app&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s">&quot;plugins&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;simple_html&quot;</span><span class="p">]</span>
+    <span class="s">&quot;plugins&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;simple_http&quot;</span><span class="p">]</span>
   <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>This is the minimum required metadata for an application. It contains the list
 of plugins that will be used to setup the application. In this case, it uses a
-single plugin: <tt class="docutils literal"><span class="pre">simple_html</span></tt>. Later, we&#8217;ll install this plugin so it can be
+single plugin: <tt class="docutils literal"><span class="pre">simple_http</span></tt>. Later, we&#8217;ll install this plugin so it can be
 used by genapp.</p>
 <p>To complete the sample app, create the file
 <tt class="docutils literal"><span class="pre">~/genapp/sample-app/index.html</span></tt>:</p>
@@ -161,7 +161,7 @@ application.</p>
 ~/genapp/sample-app/index.html</pre>
 </div>
 <p>where <tt class="docutils literal"><span class="pre">~</span></tt> is replaced by your home directory.</p>
-<p>In the next step, we&#8217;ll install <tt class="docutils literal"><span class="pre">simple_html</span></tt>, which is the plugin used to
+<p>In the next step, we&#8217;ll install <tt class="docutils literal"><span class="pre">simple_http</span></tt>, which is the plugin used to
 setup the application.</p>
 </div>
 <div class="section" id="install-a-plugin">
@@ -169,10 +169,10 @@ setup the application.</p>
 <p>A plugin is a directory that contains a <tt class="docutils literal"><span class="pre">setup</span></tt> script and any other files
 potentiall needed by the plugin when setting up applications.</p>
 <p>The sample application created in the previous step uses a plugin named
-<tt class="docutils literal"><span class="pre">simple_html</span></tt>. This plugin is provided with genapp as a sample.</p>
-<p>Install <tt class="docutils literal"><span class="pre">simple_html</span></tt> by creating a symbolic link to its directory as
+<tt class="docutils literal"><span class="pre">simple_http</span></tt>. This plugin is provided with genapp as a sample.</p>
+<p>Install <tt class="docutils literal"><span class="pre">simple_http</span></tt> by creating a symbolic link to its directory as
 follows:</p>
-<div class="highlight-python"><pre>$ ln -s GENAPP_REPO/examples/simple_html ~/genapp/plugins/simple_html</pre>
+<div class="highlight-python"><pre>$ ln -s GENAPP_REPO/examples/simple_http ~/genapp/plugins/simple_http</pre>
 </div>
 <p><tt class="docutils literal"><span class="pre">GENAPP_REPO</span></tt> must be the full path to your local genapp directory, created
 when you cloned the git repository earlier.</p>
@@ -184,7 +184,7 @@ when you cloned the git repository earlier.</p>
 <p>You should see the plugin directory and its setup file:</p>
 <div class="highlight-python"><pre>~/genapp/plugins/
 ~/genapp/plugins/simple_http
-~/genapp/plugins/simple_html/setup</pre>
+~/genapp/plugins/simple_http/setup</pre>
 </div>
 <p>where <tt class="docutils literal"><span class="pre">~</span></tt> is replaced by your home directory.</p>
 </div>
@@ -223,7 +223,7 @@ does not recognize <tt class="docutils literal"><span class="pre">~</span></tt> 
 explicitly.</p>
 <p>If the command was successful, you will see output that looks like this:</p>
 <div class="highlight-python"><pre>=INFO REPORT==== 19-Sep-2012::12:48:05 ===
-{plugin_setup_ok,{&lt;&lt;&quot;simple_html&quot;&gt;&gt;,&quot;c86e0d7c&quot;,[]}}</pre>
+{plugin_setup_ok,{&lt;&lt;&quot;simple_http&quot;&gt;&gt;,&quot;c86e0d7c&quot;,[]}}</pre>
 </div>
 <p>genapp uses a randomly assigned application ID (<tt class="docutils literal"><span class="pre">c86e0d7c</span></tt> in the example
 above), so the output you see will be slightly different. Note the application
@@ -288,7 +288,7 @@ $ find | sort</pre>
 ./.genapp/ports/8024
 ./.genapp/setup_status
 ./.genapp/setup_status/ok
-./.genapp/setup_status/plugin_simple_html_0
+./.genapp/setup_status/plugin_simple_http_0
 ./index.html</pre>
 </div>
 <p>All of the application&#8217;s genapp related files are located within the
