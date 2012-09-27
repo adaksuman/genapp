@@ -301,11 +301,16 @@ is located outside that directory.</p>
 <div class="section" id="undeploy-an-application">
 <h2>Undeploy an Application<a class="headerlink" href="#undeploy-an-application" title="Permalink to this headline">¶</a></h2>
 <p>Type the following command in the genapp shell:</p>
-<div class="highlight-python"><pre>&gt; genapp:undeploy(APP_ID).</pre>
+<div class="highlight-python"><pre>&gt; genapp:undeploy(&quot;APP_ID&quot;).</pre>
 </div>
+<p>where <tt class="docutils literal"><span class="pre">APP_ID</span></tt> is the ID of the deployed application. (Note that in this case
+application ID is a quoted string.)</p>
 <p>This will remove the application directory and cleanup and related resources.</p>
-<p>To undeploy an application, genapp simply deletes the application
-directory.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">genapp simply deletes the application directory to undeploy it. You can
+do this from outside genapp to accomplish the same thing.</p>
+</div>
 </div>
 <div class="section" id="summary">
 <h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>

@@ -242,8 +242,9 @@ div.admonition {
     margin-top: 15px;
 }
 div.note {
-    padding: 10px 15px 10px 80px;
-    background: #e4ffde url(alert_info_32.png) 15px 15px no-repeat;
+    padding: 10px 15px;
+    /* padding: 10px 15px 10px 80px; */
+    /* background: #e4ffde url(alert_info_32.png) 15px 15px no-repeat; */
     min-height: 42px;
 }
 div.warning {

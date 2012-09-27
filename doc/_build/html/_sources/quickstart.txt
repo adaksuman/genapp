@@ -317,12 +317,17 @@ Undeploy an Application
 
 Type the following command in the genapp shell::
 
-    > genapp:undeploy(APP_ID).
+    > genapp:undeploy("APP_ID").
+
+where ``APP_ID`` is the ID of the deployed application. (Note that in this case
+application ID is a quoted string.)
 
 This will remove the application directory and cleanup and related resources.
 
-To undeploy an application, genapp simply deletes the application
-directory.
+.. note::
+
+   genapp simply deletes the application directory to undeploy it. You can
+   do this from outside genapp to accomplish the same thing.
 
 Summary
 -------
