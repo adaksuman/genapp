@@ -143,7 +143,7 @@ Install a Plugin
 ----------------
 
 A plugin is a directory that contains a ``setup`` script and any other files
-potentiall needed by the plugin when setting up applications.
+potentially needed by the plugin when setting up applications.
 
 The sample application created in the previous step uses a plugin named
 ``simple_http``. This plugin is provided with genapp as a sample.
