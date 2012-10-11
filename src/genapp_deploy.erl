@@ -266,7 +266,7 @@ handle_temp_plugin_install({error, Err}, Name, TmpZip) ->
 add_plugin(Plugin, #state{plugins=undefined}=State) ->
     State#state{plugins=[Plugin]};
 add_plugin(Plugin, #state{plugins=Plugins}=State) ->
-    State#state{plugins=[Plugin|Plugins]}.
+    State#state{plugins=Plugins ++ [Plugin]}.
 
 %%%===================================================================
 %%% Create app directory
@@ -370,7 +370,10 @@ genapp_env_file(App) ->
       ?GENAPP_ENV_FILE).
 
 metadata_env(#app{meta=Meta}) ->
-    genapp_metadata:section_values(<<"env">>, Meta).
+    metadata_env_val(genapp_metadata:get_value(<<"app">>, <<"env">>, Meta)).
+
+metadata_env_val(error) -> [];
+metadata_env_val({ok, {Env}}) -> Env.
 
 write_env(File, Env) ->
     handle_write_file(write_file(File, render_env_file(Env)), File).
@@ -388,7 +391,7 @@ env_assignment(Name, Val) ->
     [Name, <<"=\"">>, escape_quotes(Val), <<"\"\n">>].
 
 escape_quotes(Val) ->
-    re:replace(Val, "\"", "\\\"", [global, {return, list}]).
+    re:replace(Val, "\"", "\\\\\"", [global, {return, list}]).
 
 write_file(File, Bytes) ->
     file:write_file(File, Bytes).

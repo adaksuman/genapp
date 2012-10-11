@@ -1,4 +1,2 @@
 #!/bin/sh
-set -e
-set -u
-. "$plugin_dir/setup"
+"$plugin_dir/setup"

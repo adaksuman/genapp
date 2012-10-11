@@ -65,6 +65,7 @@ app_setup_env(PluginDir, #app{id=Id,
                               pkg_dir=PkgDir}=App) ->
     lists:concat(
       [[{"plugin_dir", PluginDir},
+	{"genapp_functions", genapp_functions_dir()},
         {"app_id", env_val(Id)},
         {"app_dir", env_val(Dir)},
         {"app_user", env_val(User)},
@@ -75,6 +76,9 @@ app_setup_env(PluginDir, #app{id=Id,
        app_ports_env(Ports),
        metadata_env(Meta),
        extra_metadata_env(PkgDir)]).
+
+genapp_functions_dir() ->
+    genapp_util:filename_join(genapp:priv_dir(), "functions").
 
 env_val(undefined) -> "";
 env_val(Val) -> Val.

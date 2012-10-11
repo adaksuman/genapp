@@ -1,0 +1,11 @@
+# -*-shell-script-*-
+
+escape_quotes() {
+    echo $1 | sed 's/"/\\"/g'
+}
+
+save_function() {
+    local orig_func=$(declare -f $1)
+    local new_func="$2${orig_func#$1}"
+    eval "$new_func"
+}

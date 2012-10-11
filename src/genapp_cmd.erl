@@ -11,14 +11,12 @@ run(Exe, Args, Options) ->
 run(Exe, Args, Options, Timeout) ->
     Self = self(),
     FullExe = find_exe(Exe),
-    spawn(fun() ->
-		  start_port(FullExe, Args, clean_options(Options), Self)
-	  end),
+    CleanOptions = clean_options(Options),
+    spawn(
+      fun() -> start_port(FullExe, Args, CleanOptions, Timeout, Self) end),
     receive
-        {error, Err} -> error(Err);
-        {N, Out} when is_integer(N) -> {N, Out}
-    after
-        Timeout -> error(timeout)
+        {N, Out} when is_integer(N) -> {N, Out};
+        {error, Err} -> error(Err)
     end.
 
 clean_options(Options) ->
@@ -47,21 +45,49 @@ handle_exe_is_file(false, Exe) ->
 handle_os_find_exe(false, Exe) -> error({bad_exe, Exe});
 handle_os_find_exe(FullExe, _Exe) -> FullExe.
 
-start_port(Exe, Args, Options, From) ->
-    try open_port({spawn_executable, Exe},
-                  [{args, Args},
-                   stderr_to_stdout,
-                   exit_status|
-                   Options]) of
-        Port -> port_loop(Port, From, [])
+start_port(Exe, Args, Options, Timeout, From) ->
+    try open_port({spawn_executable, Exe}, spawn_opts(Args, Options)) of
+        Port ->
+            port_loop(Port, From, timeout_at(Timeout), [])
     catch
-        error:Err -> From ! {error, Err}
+        error:Err ->
+            send_error(From, Err)
     end.
 
-port_loop(Port, From, AccOut) ->
+spawn_opts(Args, Options) ->
+    [{args, Args}, stderr_to_stdout, exit_status | Options].
+
+timeout_at(infinity) -> never;
+timeout_at(Timeout) when is_integer(Timeout) ->
+    now_ms() + Timeout.
+
+now_ms() ->
+    {M, S, U} = os:timestamp(),
+    M * 1000000000 + S * 1000 + U div 1000.
+
+port_loop(Port, From, TimeoutAt, AccOut) ->
+    TimeoutRef = schedule_next_timeout(TimeoutAt),
     receive
 	{Port, {data, Data}} ->
-	    port_loop(Port, From, [Data|AccOut]);
+            cancel_timeout(TimeoutRef),
+	    port_loop(Port, From, TimeoutAt, [Data|AccOut]);
 	{Port, {exit_status, Exit}} ->
-            From ! {Exit, lists:reverse(AccOut)}
+            cancel_timeout(TimeoutRef),
+            send_result(From, Exit, lists:reverse(AccOut));
+        timeout ->
+            send_error(From, {timeout, lists:reverse(AccOut)})
     end.
+
+schedule_next_timeout(never) -> undefined;
+schedule_next_timeout(TimeoutAt) when is_integer(TimeoutAt) ->
+    erlang:send_after(TimeoutAt - now_ms(), self(), timeout).
+
+cancel_timeout(undefined) -> ok;
+cancel_timeout(TimeoutRef) ->
+    erlang:cancel_timer(TimeoutRef).
+
+send_result(Dest, Exit, Out) ->
+    erlang:send(Dest, {Exit, Out}).
+
+send_error(Dest, Err) ->
+    erlang:send(Dest, {error, Err}).
