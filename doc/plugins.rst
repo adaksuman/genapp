@@ -1,8 +1,9 @@
 Plugins
 =======
 
-A genapp plugin is a directory that contains a script named ``setup``, which is
-used by genapp to perform setup operations during application deployment.
+A genapp plugin is a directory that contains an executable script named
+``setup``, which is used by genapp to perform setup operations during
+application deployment.
 
 Multiple plugins may be used to perform independent setup operations during
 application deployment. At least one of the plugins must create a ``start``
@@ -36,7 +37,7 @@ Plugin Directory
 ----------------
 
 A plugin is a directory that contains a setup script. The setup script must be
-named "setup" and located in the root plugin directory.
+named "setup" and located in the root plugin directory. It must be executable.
 
 The plugin directory may contain other files used by the plugin during
 setup. These commonly include:
@@ -51,11 +52,13 @@ Setup Script
 ------------
 
 The setup script must be a shell script that performs setup related operation
-when *sourced*. Sourcing is a method of reading and executing commands defined
-in a file. It's similar to executing the file outright, but insteads runs the
-file commands in the context of the sourcing process.
+when executed.
 
-Plugin setup scripts do not have to be executable.
+.. note::
+
+   Earlier versions of genapp *sourced* the setup file and did not require that
+   the setup file be executable. This change was made to support setup scripts
+   written in languages other than bash.
 
 Setup scripts have access to a number of environment variables, which are
 listed in the next section.
