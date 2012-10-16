@@ -52,8 +52,9 @@
         
   <div class="section" id="plugins">
 <h1>Plugins<a class="headerlink" href="#plugins" title="Permalink to this headline">¶</a></h1>
-<p>A genapp plugin is a directory that contains a script named <tt class="docutils literal"><span class="pre">setup</span></tt>, which is
-used by genapp to perform setup operations during application deployment.</p>
+<p>A genapp plugin is a directory that contains an executable script named
+<tt class="docutils literal"><span class="pre">setup</span></tt>, which is used by genapp to perform setup operations during
+application deployment.</p>
 <p>Multiple plugins may be used to perform independent setup operations during
 application deployment. At least one of the plugins must create a <tt class="docutils literal"><span class="pre">start</span></tt>
 control script that can be used to start the application.</p>
@@ -81,7 +82,7 @@ as classpath settings, JVM arguments and the main Java class.</p>
 <div class="section" id="plugin-directory">
 <h2>Plugin Directory<a class="headerlink" href="#plugin-directory" title="Permalink to this headline">¶</a></h2>
 <p>A plugin is a directory that contains a setup script. The setup script must be
-named &#8220;setup&#8221; and located in the root plugin directory.</p>
+named &#8220;setup&#8221; and located in the root plugin directory. It must be executable.</p>
 <p>The plugin directory may contain other files used by the plugin during
 setup. These commonly include:</p>
 <ul class="simple">
@@ -95,10 +96,13 @@ application)</li>
 <div class="section" id="setup-script">
 <h2>Setup Script<a class="headerlink" href="#setup-script" title="Permalink to this headline">¶</a></h2>
 <p>The setup script must be a shell script that performs setup related operation
-when <em>sourced</em>. Sourcing is a method of reading and executing commands defined
-in a file. It&#8217;s similar to executing the file outright, but insteads runs the
-file commands in the context of the sourcing process.</p>
-<p>Plugin setup scripts do not have to be executable.</p>
+when executed.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Earlier versions of genapp <em>sourced</em> the setup file and did not require that
+the setup file be executable. This change was made to support setup scripts
+written in languages other than bash.</p>
+</div>
 <p>Setup scripts have access to a number of environment variables, which are
 listed in the next section.</p>
 </div>
