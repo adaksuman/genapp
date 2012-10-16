@@ -13,6 +13,15 @@ reference until the other documentation is finalized.
 
 ---
 
+TODO:
+
+- Note group writable rule for plugins
+- Hint for bash dev: use "set -x" to print statements -- BUT then REMOVE
+- Separation of setup and functions (page on code reuse)
+- Use of other plugins (use git subproject?)
+
+---
+
 genapp is a light weight framework for deploying and managing applications.
 
 # Production Requirements
