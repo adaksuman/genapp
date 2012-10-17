@@ -1,4 +1,7 @@
-# -*-shell-script-*-
+#!/bin/bash
+
+set -e
+set -u
 
 # Install everything from pkg_dir
 cp -a $pkg_dir/* $app_dir/
