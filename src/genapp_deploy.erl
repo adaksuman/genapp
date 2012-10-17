@@ -320,8 +320,8 @@ write_app_setup_script(#state{app=App}=State) ->
     ok = file:change_mode(Dest, 8#00755),
     State.
 
-plugin_app_setup_script(#app{dir=Dir}) ->
-    genapp_util:filename_join(Dir, "setup").
+plugin_app_setup_script(App) ->
+    genapp_util:filename_join(genapp_dir:root(App), "setup").
 
 %%%===================================================================
 %%% Create app user

@@ -1,2 +1,4 @@
-#!/bin/sh
+#!/bin/bash
+set -u
+set -e
 "$plugin_dir/setup"
