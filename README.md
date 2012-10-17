@@ -19,6 +19,8 @@ TODO:
 - Hint for bash dev: use "set -x" to print statements -- BUT then REMOVE
 - Separation of setup and functions (page on code reuse)
 - Use of other plugins (use git subproject?)
+- Note the convention of building up command line strings and calling them
+  with `bash -c "$cmd"`
 
 ---
 
