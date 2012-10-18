@@ -21,6 +21,9 @@ TODO:
 - Use of other plugins (use git subproject?)
 - Note the convention of building up command line strings and calling them
   with `bash -c "$cmd"`
+- Devote a whole page to the setup workflow. This should have some graphics
+  that show the flow from the source dirs (`pkg_dir` and various `plugin_dir`)
+  to the target dir (`app_dir`)
 
 ---
 
