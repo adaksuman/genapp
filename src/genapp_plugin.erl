@@ -12,7 +12,7 @@
 
 -export([local_plugin_dir/1, setup_app/2]).
 
--define(APP_SETUP_TIMEOUT, 60000).
+-define(APP_SETUP_TIMEOUT, 300000).
 
 %%%===================================================================
 %%% API
