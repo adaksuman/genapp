@@ -10,7 +10,10 @@
          get_env/1,
          get_env/2,
          priv_dir/0,
-         mode/0]).
+         mode/0,
+	 app_env/1]).
+
+-include("genapp.hrl").
 
 start() ->
     e2_application:start_with_dependencies(genapp).
@@ -55,3 +58,21 @@ mode() ->
 handle_devmode_env(true) -> devmode;
 handle_devmode_env(false) -> normal;
 handle_devmode_env(Other) -> error({invalid_devmode, Other}).
+
+app_env(AppId) ->
+    [{"genapp_functions", genapp_functions_dir()},
+     {"app_id", AppId},
+     {"app_dir", app_dir(AppId)},
+     {"app_user", genapp_user:app_user(AppId)},
+     {"genapp_dir", genapp_dir:root(AppId)},
+     {"control_dir", genapp_dir:subdir(AppId, ?GENAPP_CONTROL_SUBDIR)},
+     {"log_dir", genapp_dir:subdir(AppId, ?GENAPP_LOG_SUBDIR)}].
+
+genapp_functions_dir() ->
+    genapp_util:filename_join(genapp:priv_dir(), "functions").
+
+app_dir(AppId) ->
+    handle_app_dir(genapp_resource:app_dir(AppId), AppId).
+
+handle_app_dir({ok, Dir}, _AppId) -> Dir;
+handle_app_dir(error, AppId) -> error({invalid_app, AppId}).
