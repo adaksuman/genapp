@@ -49,9 +49,9 @@ plugin_dir(Name) ->
 plugins_home() ->
     genapp:get_env(plugins_home, ?DEFAULT_PLUGINS_HOME).
 
-app_setup_script(App) ->
-    %% A "setup" script must exist in genapp root as a pre-req for this call.
-    genapp_util:filename_join(genapp_dir:root(App), "setup").
+app_setup_script(#app{dir=Dir}) ->
+    %% The "setup" script must exist in Dir as a pre-req for this call.
+    genapp_util:filename_join(Dir, "setup").
 
 %%%===================================================================
 %%% Plugin setup env
