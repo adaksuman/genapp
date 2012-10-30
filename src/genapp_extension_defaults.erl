@@ -25,7 +25,7 @@ register_sudo(_) ->
     genapp_extension:register(run_as, fun sudo/5).
 
 sudo(User, Cmd, Args, Options, Timeout) ->
-    genapp_cmd:run("sudo", ["-E", "-u", User, Cmd|Args], Options, Timeout).
+    genapp_cmd:run("sudo", ["-u", User, Cmd|Args], Options, Timeout).
 
 handle_msg({'DOWN', Ref, process, _Proc, _Reason}, _From, Ref) ->
     {stop, genapp_extension_down}.
