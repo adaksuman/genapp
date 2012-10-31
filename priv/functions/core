@@ -4,8 +4,26 @@ escape_quotes() {
     echo $1 | sed 's/"/\\"/g'
 }
 
+expand() {
+    eval "echo ${1?}"
+}
+
 save_function() {
     local orig_func=$(declare -f $1)
     local new_func="$2${orig_func#$1}"
     eval "$new_func"
+}
+
+metadata() {
+    local var=${1?}
+    if [ -z "${!var+x}" ]; then
+	if [ -z "${2+x}" ]; then
+	    echo "Missing required metadata $var" >&2
+	    return 1
+	else
+	    echo "$2"
+	fi
+    else
+	echo "${!var}"
+    fi
 }
