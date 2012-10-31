@@ -16,14 +16,24 @@ reference until the other documentation is finalized.
 TODO:
 
 - Note group writable rule for plugins
+
 - Hint for bash dev: use "set -x" to print statements -- BUT then REMOVE
+
 - Separation of setup and functions (page on code reuse)
+
 - Use of other plugins (use git subproject?)
+
 - Note the convention of building up command line strings and calling them
   with `bash -c "$cmd"`
+
 - Devote a whole page to the setup workflow. This should have some graphics
   that show the flow from the source dirs (`pkg_dir` and various `plugin_dir`)
   to the target dir (`app_dir`)
+
+- Moving away from using local variables to using underscore convention. local
+  variables are horrifically dangerous because they eat function return values,
+  hiding errors. Underscores have the advantage of making it clear which
+  variables are local and which are not.
 
 ---
 
