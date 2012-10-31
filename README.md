@@ -35,6 +35,17 @@ TODO:
   hiding errors. Underscores have the advantage of making it clear which
   variables are local and which are not.
 
+  The point is made here:
+
+  http://tldp.org/LDP/abs/html/localvar.html
+
+  as the problem of "declaring and setting a local variable in a single
+  command."
+
+  We could get away with delcaring and setting in separate steps whenever
+  functions are used to set values, but that's a recipe for bugs. The leading
+  underscores also has other benefits, as mentioned above.
+
 ---
 
 genapp is a light weight framework for deploying and managing applications.
