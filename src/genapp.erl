@@ -59,6 +59,7 @@ handle_devmode_env(true) -> devmode;
 handle_devmode_env(false) -> normal;
 handle_devmode_env(Other) -> error({invalid_devmode, Other}).
 
+app_env(#app{id=Id}) -> app_env(Id);
 app_env(AppId) ->
     [{"genapp_functions", genapp_functions_dir()},
      {"app_id", AppId},
