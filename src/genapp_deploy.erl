@@ -361,7 +361,7 @@ handle_reserve_ports({error, Err}, State) ->
 %%%===================================================================
 
 write_env(#state{app=App}=State) ->
-    write_env(genapp_env_file(App), metadata_env(App)),
+    write_env(genapp_env_file(App), metadata_env(App), App),
     State.
 
 genapp_env_file(App) ->
@@ -375,23 +375,33 @@ metadata_env(#app{meta=Meta}) ->
 metadata_env_val(error) -> [];
 metadata_env_val({ok, {Env}}) -> Env.
 
-write_env(File, Env) ->
-    handle_write_file(write_file(File, render_env_file(Env)), File).
+write_env(File, Env, App) ->
+    handle_write_file(write_file(File, render_env_file(Env, App)), File).
 
-render_env_file(Env) ->
-    render_env(Env, []).
+render_env_file(MetadataEnv, App) ->
+    AppEnv = genapp:app_env(App),
+    render_env(MetadataEnv, AppEnv, []).
 
-render_env([], Acc) -> lists:reverse(Acc);
-render_env([{Name, Val}|Rest], Acc) when is_binary(Val) ->
-    render_env(Rest, [env_assignment(Name, Val)|Acc]);
-render_env([_Other|Rest], Acc) ->
-    render_env(Rest, Acc).
+render_env([], _AppEnv, Acc) -> lists:reverse(Acc);
+render_env([{Name, Val}|Rest], AppEnv, Acc) when is_binary(Val) ->
+    render_env(Rest, AppEnv, [env_assignment(Name, Val, AppEnv)|Acc]);
+render_env([_Other|Rest], AppEnv, Acc) ->
+    render_env(Rest, AppEnv, Acc).
 
-env_assignment(Name, Val) ->
-    [Name, <<"=\"">>, escape_quotes(Val), <<"\"\n">>].
+env_assignment(Name, Val, AppEnv) ->
+    [Name, <<"=\"">>, bash_expand(escape_quotes(Val), AppEnv), <<"\"\n">>].
 
 escape_quotes(Val) ->
     re:replace(Val, "\"", "\\\\\"", [global, {return, list}]).
+
+bash_expand(Val, AppEnv) ->
+    escape_quotes(bash_echo(Val, AppEnv)).
+
+bash_echo(Val, Env) ->
+    {0, Out} =
+        genapp_cmd:run(
+          "bash", ["-c", ["echo -n \"", Val, "\""]], [{env, Env}]),
+    Out.
 
 write_file(File, Bytes) ->
     file:write_file(File, Bytes).
