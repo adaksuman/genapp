@@ -182,7 +182,9 @@ resolve_plugin_src(<<"local_plugin">>, PluginDir, Attrs) ->
       PluginDir,
       local_plugin_name(Attrs, PluginDir));
 resolve_plugin_src(Scheme, Rest, Attrs) when ?is_curl_scheme(Scheme) ->
-    resolve_remote_plugin(Scheme, Rest, Attrs).
+    resolve_remote_plugin(Scheme, Rest, Attrs);
+resolve_plugin_src(Scheme, _Rest, _Attrs) ->
+    error({invalid_plugin_src_scheme, Scheme}).
 
 %%%===================================================================
 %%% Local plugin resolution

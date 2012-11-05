@@ -61,12 +61,12 @@ file_ctime_seconds(#file_info{ctime=CTime}) ->
 
 delete_remote_plugins([]) -> ok;
 delete_remote_plugins(Dirs) ->
-    e2_log:info({stax_genapp_tmp_cleanup, Dirs}),
+    e2_log:info({genapp_temp_cleanup, Dirs}),
     lists:foreach(fun delete_dir/1, Dirs).
 
 delete_dir(Dir) ->
     validate_dir(Dir),
-    {0, ""} = stax_cmd:run("rm", ["-rf", Dir]).
+    {0, ""} = genapp_cmd:run("rm", ["-rf", Dir]).
 
 validate_dir(Dir) ->
     handle_validate_dir_parts(filename:split(Dir), Dir).
