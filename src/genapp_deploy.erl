@@ -391,13 +391,19 @@ render_env([_Other|Rest], AppEnv, Acc) ->
     render_env(Rest, AppEnv, Acc).
 
 env_assignment(Name, Val, AppEnv) ->
-    [Name, <<"=\"">>, bash_expand(escape_quotes(Val), AppEnv), <<"\"\n">>].
+    [Name, <<"=\"">>, bash_expand(escape_bash_val(Val), AppEnv), <<"\"\n">>].
 
-escape_quotes(Val) ->
-    re:replace(Val, "\"", "\\\\\"", [global, {return, list}]).
+escape_bash_val(Val) ->
+    multi_replace(Val, [{"\\\\", "\\\\\\\\"}, {"\"", "\\\\\""}]).
+
+multi_replace(Val, Replacements) ->
+    lists:foldl(
+      fun({Pattern, Replace}, Str) ->
+              re:replace(Str, Pattern, Replace, [global, {return, list}])
+      end, Val, Replacements).
 
 bash_expand(Val, AppEnv) ->
-    escape_quotes(bash_echo(Val, AppEnv)).
+    escape_bash_val(bash_echo(Val, AppEnv)).
 
 bash_echo(Val, Env) ->
     {0, Out} =
