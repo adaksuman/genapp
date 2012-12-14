@@ -1,22 +1,38 @@
-# Overview
-
-<a href="http://genapp-docs.cloudbees.com/">Read the documentation here</a>
-
-
-Genapp is a the core framework of CloudBees that powers the PaaS. 
-It runs application containers, applies plugins and runtimes.
-
-
 Genapp (c) 2012 CloudBees
 http://www.cloudbees.com
-
-
 Licenced under the AGPL. See the LICENCE file.
+
+# Overview
+genapp is used to manage the lifecycle of user applications on the CloudBees platform.
+
+Each CloudBees server is capable of running multiple user applications. 
+These applications are installed and configured (i.e. deployed) by invoking a genapp agent. 
+Genapp is also used to uninstall (i.e. undeploy) applications.
+
+genapp handles:
+
+* Application port allocation
+* Application deployment by way of plugins
+* Application undeployment
+
+genapp does not handle:
+
+* Application packaging
+* Application package deployment
+* Specific application setup (these are handled by plugins)
+* Application start and stop
+* Application monitoring
+
+Read the AMAZING documentation: http://genapp-docs.cloudbees.com/
+
+
+
+
+
 
 
 **NOTE**: The documentation below is deprecated and may be out of date
 
-To get the current documentation: http://genapp-docs.cloudbees.com/
 
     $ clone git@github.com:cloudbees/genapp.git
 
