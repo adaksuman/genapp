@@ -2,18 +2,21 @@
 
 <a href="http://genapp-docs.cloudbees.com/">Read the documentation here</a>
 
-Genapp (c) 2012 CloudBees
-www.cloudbees.com
 
 Genapp is a the core framework of CloudBees that powers the PaaS. 
 It runs application containers, applies plugins and runtimes.
+
+
+Genapp (c) 2012 CloudBees
+http://www.cloudbees.com
+
 
 Licenced under the AGPL. See the LICENCE file.
 
 
 **NOTE**: The documentation below is deprecated and may be out of date
 
-To get the current documentation:
+To get the current documentation: http://genapp-docs.cloudbees.com/
 
     $ clone git@github.com:cloudbees/genapp.git
 
